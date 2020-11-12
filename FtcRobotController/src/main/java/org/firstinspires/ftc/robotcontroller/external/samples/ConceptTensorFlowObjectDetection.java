@@ -132,7 +132,6 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
                                 recognition.getRight(), recognition.getBottom());
                       }
                       telemetry.update();
-                      console.log(telemetry);
                     }
                 }
             }
