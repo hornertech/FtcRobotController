@@ -31,6 +31,8 @@ public class Robot extends java.lang.Thread {
     private DcMotorEx Motor_FR;
     private DcMotorEx Motor_BR;
     private DcMotorEx Motor_BL;
+    private DcMotorEx shooter;
+    private DcMotorEx wobbler; 
 
     private DcMotor Slide_L;
     private DcMotor Slide_R;
@@ -95,6 +97,8 @@ public class Robot extends java.lang.Thread {
         telemetry.update();
 
         //Wheels
+        Shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        Wobbler = hardwareMap.get(DcMotorEx.class, "wobbler");
         Motor_FL = hardwareMap.get(DcMotorEx.class, "motor_fl");
         Motor_FR = hardwareMap.get(DcMotorEx.class, "motor_fr");
         Motor_BR = hardwareMap.get(DcMotorEx.class, "motor_br");
@@ -171,6 +175,7 @@ public class Robot extends java.lang.Thread {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
+
 
 
     private void initDevices() {
@@ -912,7 +917,7 @@ public class Robot extends java.lang.Thread {
 
     }
 
-
+    
 
     public void moveSlides(double power, int time, boolean teleop) {
         Log.i(TAG, "Enter Function: moveSlides");
