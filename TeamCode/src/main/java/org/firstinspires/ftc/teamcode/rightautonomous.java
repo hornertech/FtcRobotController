@@ -159,7 +159,7 @@ public class rightAutonomous extends LinearOpMode {
 
 //Inital Movement, static (Not dependent on # of rings)
 
-        r.moveF(1, 1000);
+        r.moveF(1, 900);
         r.moveL(1, 100);
 
         //If # of rings = 0
