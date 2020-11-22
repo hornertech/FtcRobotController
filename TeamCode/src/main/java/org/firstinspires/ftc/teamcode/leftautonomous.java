@@ -166,7 +166,7 @@ public class rightAutonomous extends LinearOpMode {
         //Shoot x3 (TBW)
         if (detected_rings == 0) {
             r.moveF(1, 100);
-            r.moveR(1, 200);
+            r.moveL(1, 200);
             //Drop wobble
         }
 
@@ -190,7 +190,7 @@ public class rightAutonomous extends LinearOpMode {
             r.moveF(1, 400);
             //shoot x3
             r.moveF(1, 600);
-            r.moveR(1, 200);
+            r.moveL(1, 200);
             //Drop wobble
             r.moveB(1, 500);
         }
