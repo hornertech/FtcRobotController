@@ -25,9 +25,6 @@ public class Building extends LinearOpMode {
         Log.i(TAG, "*************Starting Autonomous Building**************************");
 
 
-        Robot.moveSlides(1, 800, false);
-        sleep(300);
-        Robot.moveSlides(-1, 800, false);
         sleep(100);
         Robot.moveBackwardForTime(1, 500, true);
         sleep(100);

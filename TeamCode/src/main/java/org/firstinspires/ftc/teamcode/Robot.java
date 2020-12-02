@@ -23,7 +23,7 @@ public class Robot extends java.lang.Thread {
     private Telemetry telemetry;
 
     //private static final int TICKS_PER_ROTATION = 1440; //Tetrix motor specific
-    private static final int TICKS_PER_ROTATION = 1120; //Tetrix motor specific
+    private static final double TICKS_PER_ROTATION = 145.6; //Gobilda 1150 RMP motor specific
     private static final double WHEEL_DIAMETER = 4; //Wheel diameter in inches
     private String TAG = "FTC";
 
@@ -32,16 +32,10 @@ public class Robot extends java.lang.Thread {
     private DcMotorEx Motor_BR;
     private DcMotorEx Motor_BL;
     private DcMotorEx shooter;
-    private DcMotorEx wobbler; 
-
-    private DcMotor Slide_L;
-    private DcMotor Slide_R;
-
-    //private DcMotor Clamp_L;
-    //private DcMotor Clamp_R;
-
-    private Servo pincher;
-    private Servo capper;
+    private DcMotorEx wobbler;
+    private DcMotorEx intake;
+    private Servo gripper;
+    private CRServo pusher;
     // The IMU sensor object
     private BNO055IMU imu;
 
@@ -58,7 +52,7 @@ public class Robot extends java.lang.Thread {
     private boolean DEBUG_INFO   = false;
 
     private long     movementFactor      = 1;
-    private double   turnFactor          = 7.2;
+    private double   turnFactor          = 3.6;
     private double   leftStrafeFactor    = 1.2;
     private double   rightStrafeFactor   = 1.2;
 
@@ -97,13 +91,15 @@ public class Robot extends java.lang.Thread {
         telemetry.update();
 
         //Wheels
-        Shooter = hardwareMap.get(DcMotorEx.class, "shooter");
-        Wobbler = hardwareMap.get(DcMotorEx.class, "wobbler");
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        wobbler = hardwareMap.get(DcMotorEx.class, "wobbler");
         Motor_FL = hardwareMap.get(DcMotorEx.class, "motor_fl");
         Motor_FR = hardwareMap.get(DcMotorEx.class, "motor_fr");
         Motor_BR = hardwareMap.get(DcMotorEx.class, "motor_br");
         Motor_BL = hardwareMap.get(DcMotorEx.class, "motor_bl");
-
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
+        gripper = hardwareMap.get(Servo.class, "gripper");
+        pusher = hardwareMap.get(CRServo.class, "pusher");
        /*Motor_FR.setVelocityPIDFCoefficients(0.95, 0.095, 0, 9.5);
         Motor_FR.setPositionPIDFCoefficients(5.0);
 
@@ -138,18 +134,12 @@ public class Robot extends java.lang.Thread {
         Motor_BL.setTargetPositionTolerance(15);
         Motor_BR.setTargetPositionTolerance(15);
 
-        Slide_R = hardwareMap.get(DcMotor.class, "slide_r");
-        Slide_L = hardwareMap.get(DcMotor.class, "slide_l");
 
-        //Clamp_L = hardwareMap.get(DcMotor.class, "clamp_l");
-        //Clamp_R = hardwareMap.get(DcMotor.class, "clamp_r");
 
-        pincher = hardwareMap.get(Servo.class, "pincher");
-        capper = hardwareMap.get(Servo.class, "capper");
-      /*  Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);*/
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         BNO055IMU.Parameters parametersIMU  = new BNO055IMU.Parameters();
         parametersIMU.angleUnit             = BNO055IMU.AngleUnit.DEGREES;
@@ -692,10 +682,7 @@ public class Robot extends java.lang.Thread {
         Motor_BR.setPower(0);
         Motor_BL.setPower(0);
     }
-    public void turnOffSlides(){
-        Slide_L.setPower(0);
-        Slide_R.setPower(0);
-    }
+
 
     public void moveF(double power, long distance) {
         Motor_FL.setPower(power);
@@ -759,8 +746,8 @@ public class Robot extends java.lang.Thread {
 
         Motor_FL.setPower((-1) * (1) * power);
         Motor_FR.setPower((-1) * (1) * power);
-        Motor_BR.setPower(power );
-        Motor_BL.setPower(power);
+        Motor_BR.setPower(power * (1));
+        Motor_BL.setPower(power * (1));
 
         /*try {
             sleep(distance * movementFactor);
@@ -775,34 +762,6 @@ public class Robot extends java.lang.Thread {
         telemetry.update();
         if (isTeleOp == false) pause(250);*/
     }
-
-    /*public void ClampDown(int time){
-        Clamp_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Clamp_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Clamp_L.setPower(0.4);
-        Clamp_R.setPower(-0.4);
-        try {
-            sleep(time);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Clamp_L.setPower(0);
-        Clamp_R.setPower(0);
-
-    }
-    public void ClampUp(int time){
-        Clamp_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Clamp_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Clamp_L.setPower(-0.4);
-        Clamp_R.setPower(0.4);
-        try {
-            sleep(time);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Clamp_L.setPower(0);
-        Clamp_R.setPower(0);
-    }*/
 
     public void slowTurn(double angle) {
         Log.i(TAG, "Enter Function slowTurn Angle: "+ angle);
@@ -847,11 +806,6 @@ public class Robot extends java.lang.Thread {
         Log.i(TAG, "Exit Function slowTurn");
     }
 
-    public void grabStone() {
-        Log.i(TAG, "Enter Function grabStone Start Position:" + pincher.getPosition());
-        pincher.setPosition(0.4);
-        Log.i(TAG, "Exit Function grabStone End Position:" + pincher.getPosition());
-    }
 
     public void tolerance(){
             int tolerance1;
@@ -859,51 +813,7 @@ public class Robot extends java.lang.Thread {
             Log.i(TAG, "" + tolerance1);
 
     }
-    public void dropStone() {
-        Log.i(TAG, "Enter Function dropStone Start Position:" + pincher.getPosition());
-        pincher.setPosition(1);
-        Log.i(TAG, "Exit Function dropStone Start Position:" + pincher.getPosition());
-    }
-    public void dropCap(){
-        capper.setPosition(0.4);
-    }
-    public void closeCap(){ capper.setPosition(0.8); }
 
-     public void moveWithSlide(double power, int time,int direction, double slidePower, int slideDirection) {
-        Log.i(TAG, "Enter Function: moveWithSlide1 ");
-        // Reset all encoders
-        Motor_FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Motor_FR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Motor_BR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Motor_BL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Slide_R.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Slide_L.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        Slide_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Slide_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        Motor_FL.setPower((direction) *  power);
-        Motor_FR.setPower((direction) * (-1) *power);
-        Motor_BR.setPower((direction) * (-1) *power);
-        Motor_BL.setPower((direction) *  power);
-
-        Slide_L.setPower((slideDirection) * slidePower);
-        Slide_R.setPower((slideDirection) * (-1) * slidePower);
-
-        try {
-            sleep(time);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //Reached the distance, so stop the motors
-        Motor_FL.setPower(0);
-        Motor_FR.setPower(0);
-        Motor_BR.setPower(0);
-        Motor_BL.setPower(0);
-        Slide_R.setPower(0);
-        Slide_L.setPower(0);
-    }
 
     public void fixOrientation(double degree)
     {
@@ -917,61 +827,56 @@ public class Robot extends java.lang.Thread {
 
     }
 
-    
-
-    public void moveSlides(double power, int time, boolean teleop) {
-        Log.i(TAG, "Enter Function: moveSlides");
-        // Reset all encoders
-        long slide_R_Start = Slide_R.getCurrentPosition();
-        long slide_L_Start = Slide_L.getCurrentPosition();
-
-        Slide_L.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Slide_R.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        if (teleop) {
-            Slide_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            Slide_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        } else {
-            Slide_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            Slide_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }
-
-        Slide_L.setPower(power);
-        Slide_R.setPower((-1) * power);
-
+    public void wobbleUp (int time){
+        wobbler.setPower(1);
         try {
             sleep(time);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        //Reached the distance, so stop the motors
-        Slide_L.setPower(0);
-        Slide_R.setPower(0);
-
-        Log.i(TAG, "Exit Function: moveSlides");
+        wobbler.setPower(0);
     }
-    public void moveSlidesTeleOp(double power, int time, boolean teleop) {
-        Log.i(TAG, "Enter Function: moveSlides");
-        // Reset all encoders
-        long slide_R_Start = Slide_R.getCurrentPosition();
-        long slide_L_Start = Slide_L.getCurrentPosition();
-
-        Slide_L.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Slide_R.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        if (teleop) {
-            Slide_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            Slide_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        } else {
-            Slide_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            Slide_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    public void wobbleDown (int time){
+        wobbler.setPower(-1);
+        try {
+            sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        wobbler.setPower(0);
+    }
 
-        Slide_L.setPower(power);
-        Slide_R.setPower((-1) * power);
+    public void closeGrip (){
+        gripper.setPosition(0.27);
+        try {
+            sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void openGrip (){
+        gripper.setPosition(0.36);
+        try {
+            sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-        Log.i(TAG, "Exit Function: moveSlides");
+    public void push(){
+        pusher.setPower(-1);
+        try{
+            sleep(200);
+        } catch (InterruptedException e){
+            e.printStackTrace();
+        }
+        pusher.setPower(0.8);
+        try{
+            sleep(200);
+        } catch (InterruptedException e){
+            e.printStackTrace();
+        }
+        pusher.setPower(0);
     }
 
     /* IMU based turn functions */
@@ -1220,5 +1125,34 @@ public class Robot extends java.lang.Thread {
         resetAngle();
         Log.i(TAG, "Exit Function: rotate");
     }
-}
+
+    public void startIntake(int time) {
+
+        //Set power of all motors
+        intake.setPower(-1);
+
+
+        try {
+            sleep(time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //Reached the distance, so stop the motors
+        intake.setPower(0);
+
+        Log.i(TAG, "Exit Function: moveBackwardForTime");
+    }
+
+    public void startShoot() {
+        //Set power of all motors
+        shooter.setPower(-0.9);
+    }
+    public void endShoot () {
+        shooter.setPower(0);
+    }
+
+
+
+    }
 

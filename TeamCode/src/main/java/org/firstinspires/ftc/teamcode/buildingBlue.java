@@ -42,10 +42,6 @@ public class buildingBlue extends LinearOpMode {
             4) In total, our team can score 15 points from this Loading zone program
          */
 
-Robot.moveSlides(1,800,false);
-sleep(300);
-Robot.moveSlides(-1,800,false);
-sleep(100);
 Robot.moveBackwardForTime(1,500,true);
 sleep(100);
      /* Robot.moveLeftForTime(0.5, 750, false);

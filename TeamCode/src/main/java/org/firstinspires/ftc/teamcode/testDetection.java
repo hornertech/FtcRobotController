@@ -3,21 +3,19 @@ package org.firstinspires.ftc.teamcode;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import java.util.List;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
 
 
 @Autonomous
-public class rightautonomous extends LinearOpMode {
+public class testDetection extends LinearOpMode {
     public String TAG = "FTC";
     //---------------------------------------------------------------------------------------
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
@@ -83,19 +81,18 @@ public class rightautonomous extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            while (opModeIsActive()) {
-                if ((tfod != null) && (detected < 6)) {
 
+            while (opModeIsActive()) {
+                if ((tfod != null) && (detected == 0)) {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
-                    sleep(300);
+                    sleep(500);
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         telemetry.addData("# Object Detected", updatedRecognitions.size());
                         Log.i(TAG, "# Object Detected : " + updatedRecognitions.size());
                         // step through the list of recognitions and display boundary info.
                         int i = 0;
-                        detected = detected + 1;
                         for (Recognition recognition : updatedRecognitions) {
                             String label = recognition.getLabel();
 
@@ -113,14 +110,11 @@ public class rightautonomous extends LinearOpMode {
 
                         }
                         telemetry.update();
-                        if (detected == 5){
-                            startRun(numRings);
-                        }
                         //console.log(telemetry);
+                        //startRun(numRings);
                     }
                 }
             }
-
         }
 
         if (tfod != null) {
@@ -159,60 +153,45 @@ public class rightautonomous extends LinearOpMode {
     }
 
     public void startRun(int detected_rings) {
-        int move_time;
-        int angle;
         Log.i(TAG, "Enter Function: startRun Rings Detected : " + detected_rings);
         Robot r = new Robot(hardwareMap, telemetry);
-        /*r.wobbleDown(660);
-        r.openGrip();
-        sleep(300);
-        r.moveForwardForTime(0.4, 260, false);
-        //r.moveForwardForTime(0.5, 300, false);
-        r.closeGrip();
-        sleep(2500);
-        r.wobbleUp(550);
-        r.moveForwardForTime(0.5, 150, false);
-        r.moveLeftForTime(1, 400, false);
-        r.moveBackwardForTime(0.3, 400, false);
-        sleep(200);
-        r.moveForwardForTime(0.5, 1600, false);
-        sleep(300);
-        r.slowTurn(15);*/
-        r.startShoot();
-        sleep(800);
-        r.push();
-        sleep(150);
-        r.push();
-        sleep(150);
-        r.push();
-        sleep(150);
-        r.endShoot();
-       // r.moveForwardToPosition(0.5, 24);
-        /*
-        if (detected_rings == 0){
-            move_time = 350;
-            angle = 90;
-        }
-        else if(detected_rings == 1){
-            move_time = 100;
-            angle = 45;
+/*
+        r.moveF(1, 900);
+        r.moveL(1, 100);
 
-        }
-        else {
-            move_time = 450;
-            angle = 50;
+        //If # of rings = 0
+        //Shoot x3 (TBW)
+        if (detected_rings == 0) {
+            r.moveF(1, 100);
+            r.moveR(1, 200);
+            //Drop wobble
         }
 
-        r.slowTurn(angle);
-        sleep(300);
-        r.moveForwardForTime(1, move_time,false );
-        r.wobbleDown(300);
-        r.openGrip();
-        sleep(200);
-        r.wobbleUp(300);
-        r.moveBackwardForTime(1, move_time,false );
-        sleep(300);
-        r.slowTurn(-angle);*/
+        //If # of rings = 1
+        //Shoot x3
+        if (detected_rings == 1) {
+            r.moveB(1, 400);
+            //pickup rings
+            r.moveF(1, 400);
+            //shoot x1
+            r.moveF(1, 600);
+            //Drop wobble
+            r.moveB(1, 400);
+        }
+
+        //If # of rings = 4
+        //Shoot x3
+        if (detected_rings == 4) {
+            r.moveB(1, 400);
+            //pickup rings
+            r.moveF(1, 400);
+            //shoot x3
+            r.moveF(1, 600);
+            r.moveR(1, 200);
+            //Drop wobble
+            r.moveB(1, 500);
+        }*/
+
     }
 
 }

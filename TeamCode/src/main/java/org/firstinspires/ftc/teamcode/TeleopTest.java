@@ -67,6 +67,29 @@ public class TeleopTest extends LinearOpMode{
                 robot.moveR(1, 10);
             }
 
+            if (this.gamepad1.a == true) {
+                robot.startIntake(10);
+            }
+
+            if (this.gamepad1.b == true) {
+                robot.startShoot();
+            }
+            if (this.gamepad1.b == false){
+                robot.endShoot();
+            }
+            if (this.gamepad2.a == true){
+                robot.wobbleUp(5);
+            }
+            if (this.gamepad2.b == true){
+                robot.wobbleDown(5);
+            }
+            if (this.gamepad2.x == true){
+                robot.closeGrip();
+            }
+            if (this.gamepad2.y == true){
+                robot.openGrip();
+            }
+
             if(this.gamepad1.dpad_left == false &&this.gamepad1.dpad_right == false && this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false){
                 robot.turnOff();
             }
@@ -86,20 +109,23 @@ public class TeleopTest extends LinearOpMode{
             if(this.gamepad1.dpad_down == true) {
                 robot.moveB(0.5, 1);
             }
+            if (this.gamepad1.left_bumper == true){
+                robot.push();
+            }
 
             /****************** GamePad 2 **************/
             // Pincher
             if (this.gamepad2.x == true) {
                 telemetry.addData("Robot-Testing ", "grabStone");
                 telemetry.update();
-                robot.grabStone();
+
                 //robot.moveForwardToPosition(0.5, 12);
             }
 
             if (this.gamepad2.b == true) {
                 telemetry.addData("Robot-Testing ", "dropStone");
                 telemetry.update();
-                robot.dropStone();
+
                 //robot.moveBackwardToPosition(0.5, 12);
             }
 
@@ -107,13 +133,13 @@ public class TeleopTest extends LinearOpMode{
             if (this.gamepad2.dpad_down == true) {
                 telemetry.addData("Robot-Testing ", "Slide-Down-slow");
                 telemetry.update();
-                robot.moveSlides(0.5, 10, true);
+
             }
 
             if (this.gamepad2.dpad_up == true) {
                 telemetry.addData("Robot-Testing ", "Slide-Down-up");
                 telemetry.update();
-                robot.moveSlides(-0.5, 10, true);
+
             }
 
             /*if (this.gamepad1.b == true){
@@ -128,27 +154,6 @@ public class TeleopTest extends LinearOpMode{
                 robot.ClampDown(25);
             }*/
 
-            if(this.gamepad2.right_stick_x < 0.5 && this.gamepad2.right_stick_x > -0.5){
-                robot.turnOffSlides();
-            }
-
-            if (this.gamepad2.right_stick_y > 0.5) {
-                robot.moveSlidesTeleOp(-1, 10, true);
-            }
-
-            if (this.gamepad2.right_stick_y < -0.5) {
-                robot.moveSlidesTeleOp(1, 10, true);
-            }
-
-            if(this.gamepad2.right_trigger == 1){
-                robot.moveSlides(0,0, false);
-            }
-            if(this.gamepad2.a == true){
-                robot.closeCap();
-            }
-            if(this.gamepad2.right_trigger == 1 && this.gamepad2.left_trigger == 1){
-                robot.dropCap();
-            }
 
         };
     };
