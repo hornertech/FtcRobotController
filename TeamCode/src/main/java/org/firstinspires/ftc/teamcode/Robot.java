@@ -23,7 +23,7 @@ public class Robot extends java.lang.Thread {
     private Telemetry telemetry;
 
     //private static final int TICKS_PER_ROTATION = 1440; //Tetrix motor specific
-    private static final double TICKS_PER_ROTATION = 145.6; //Gobilda 1150 RMP motor specific
+    private static final double TICKS_PER_ROTATION = 537.6; //Gobilda 1150 RMP motor specific
     private static final double WHEEL_DIAMETER = 4; //Wheel diameter in inches
     private String TAG = "FTC";
 
@@ -64,22 +64,22 @@ public class Robot extends java.lang.Thread {
 
     /* Calculate Drivetrain PID cofficients */
 
-    private final int motorFLMaxSpeed = 3320;
+    private final int motorFLMaxSpeed = 2960;
     double motorFLF = 32767/ (double)motorFLMaxSpeed;
     double motorFLP = 0.1 * motorFLF;
     double mototFLI = 0.1 * motorFLP;
 
-    private final int motorFRMaxSpeed = 3360;
+    private final int motorFRMaxSpeed = 3120;
     double motorFRF = 32767/ (double)motorFRMaxSpeed;
     double motorFRP = 0.1 * motorFRF;
     double mototFRI = 0.1 * motorFRP;
 
-    private final int motorBLMaxSpeed = 3360;
+    private final int motorBLMaxSpeed = 3100;
     double motorBLF = 32767/ (double)motorBLMaxSpeed;
     double motorBLP = 0.1 * motorBLF;
     double mototBLI = 0.1 * motorBLP;
 
-    private final int motorBRMaxSpeed = 3320;
+    private final int motorBRMaxSpeed = 2920;
     double motorBRF = 32767/ (double)motorBRMaxSpeed;
     double motorBRP = 0.1 * motorBRF;
     double mototBRI = 0.1 * motorBRP;
@@ -685,6 +685,7 @@ public class Robot extends java.lang.Thread {
 
 
     public void moveF(double power, long distance) {
+
         Motor_FL.setPower(power);
         Motor_FR.setPower((-1) * power);
         Motor_BR.setPower((-1) * power);
@@ -826,7 +827,9 @@ public class Robot extends java.lang.Thread {
         }
 
     }
-
+    public void weakShot(){
+        shooter.setPower(-0.75);
+    }
     public void wobbleUp (int time){
         wobbler.setPower(1);
         try {
@@ -855,7 +858,7 @@ public class Robot extends java.lang.Thread {
         }
     }
     public void openGrip (){
-        gripper.setPosition(0.36);
+        gripper.setPosition(0.15);
         try {
             sleep(10);
         } catch (InterruptedException e) {
@@ -1125,25 +1128,22 @@ public class Robot extends java.lang.Thread {
         resetAngle();
         Log.i(TAG, "Exit Function: rotate");
     }
-
+    public void teleOpMotorBehavior(){
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
     public void startIntake(int time) {
 
         //Set power of all motors
         intake.setPower(-1);
 
-
-        try {
-            sleep(time);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //Reached the distance, so stop the motors
-        intake.setPower(0);
-
         Log.i(TAG, "Exit Function: moveBackwardForTime");
     }
-
+    public void stopIntake(){
+        intake.setPower(0);
+    }
     public void startShoot() {
         //Set power of all motors
         shooter.setPower(-0.9);

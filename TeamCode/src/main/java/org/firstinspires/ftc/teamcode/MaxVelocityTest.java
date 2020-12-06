@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
-@Disabled
+
 public class MaxVelocityTest extends LinearOpMode {
 
     DcMotorEx motor;
@@ -28,7 +28,7 @@ public class MaxVelocityTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        motor = hardwareMap.get(DcMotorEx.class, "motor_bl");
+        motor = hardwareMap.get(DcMotorEx.class, "motor_fl");
         waitForStart();
         while (opModeIsActive()) {
             motor.setPower(1);

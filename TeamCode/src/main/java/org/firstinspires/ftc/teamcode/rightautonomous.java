@@ -104,7 +104,7 @@ public class rightautonomous extends LinearOpMode {
                             } else if (label == "Single") {
                                 numRings = 1;
                             }
-
+                            Log.i(TAG, "# Rings Detected : " + numRings);
                             telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
                             telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
                                     recognition.getLeft(), recognition.getTop());
@@ -159,25 +159,15 @@ public class rightautonomous extends LinearOpMode {
     }
 
     public void startRun(int detected_rings) {
-        int move_time;
+        int move_distance;
         int angle;
         Log.i(TAG, "Enter Function: startRun Rings Detected : " + detected_rings);
         Robot r = new Robot(hardwareMap, telemetry);
-        /*r.wobbleDown(660);
-        r.openGrip();
-        sleep(300);
-        r.moveForwardForTime(0.4, 260, false);
-        //r.moveForwardForTime(0.5, 300, false);
+
         r.closeGrip();
-        sleep(2500);
-        r.wobbleUp(550);
-        r.moveForwardForTime(0.5, 150, false);
-        r.moveLeftForTime(1, 400, false);
-        r.moveBackwardForTime(0.3, 400, false);
-        sleep(200);
-        r.moveForwardForTime(0.5, 1600, false);
+        r.moveForwardToPosition(0.7, 56);
         sleep(300);
-        r.slowTurn(15);*/
+        r.slowTurn(10);
         r.startShoot();
         sleep(800);
         r.push();
@@ -187,32 +177,33 @@ public class rightautonomous extends LinearOpMode {
         r.push();
         sleep(150);
         r.endShoot();
-       // r.moveForwardToPosition(0.5, 24);
-        /*
+
+
         if (detected_rings == 0){
-            move_time = 350;
-            angle = 90;
+            move_distance = 30;
+            angle = 150;
         }
         else if(detected_rings == 1){
-            move_time = 100;
-            angle = 45;
+            move_distance = 30;
+            angle = 30;
 
         }
         else {
-            move_time = 450;
-            angle = 50;
+            move_distance = 50;
+            angle = 60;
         }
 
         r.slowTurn(angle);
         sleep(300);
-        r.moveForwardForTime(1, move_time,false );
-        r.wobbleDown(300);
+        r.moveForwardToPosition(0.7, move_distance);
+        r.wobbleDown(500);
         r.openGrip();
-        sleep(200);
+        sleep(500);
+        r.closeGrip();
         r.wobbleUp(300);
-        r.moveBackwardForTime(1, move_time,false );
-        sleep(300);
-        r.slowTurn(-angle);*/
+        sleep(500);
+        r.moveBackwardToPosition(0.7, move_distance - 8);
+
     }
 
 }
