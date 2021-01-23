@@ -80,17 +80,23 @@ public class TeleopTest extends LinearOpMode{
                 robot.endShoot();
             }*/
             if (this.gamepad1.a == true){
-                robot.wobbleUp(1);
+                robot.openGrip();
+                robot.LowerWobble();
             }
             if (this.gamepad1.b == true){
-                robot.wobbleDown(1);
+                robot.closeGrip();
+                sleep(1000);
+                robot.RaiseWobble();
             }
-            if (this.gamepad1.x == true){
+            if(this.gamepad1.right_bumper == true){
+                robot.dropWobble();
+            }
+            /*if (this.gamepad1.x == true){
                 robot.closeGrip();
             }
             if (this.gamepad1.y == true){
                 robot.openGrip();
-            }
+            }*/
             if(this.gamepad1.right_trigger > 0.5){
                 robot.weakShot();
                 robot.stopIntake();

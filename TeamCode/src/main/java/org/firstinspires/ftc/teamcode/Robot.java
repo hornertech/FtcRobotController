@@ -377,7 +377,42 @@ public class Robot extends java.lang.Thread {
             Log.i(TAG, "Exit Function: moveForwardToPosition");
         }
     }
-
+    public void LowerWobble(){
+        wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wobbler.setTargetPosition(-3120);
+        wobbler.setPower(1);
+        wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (wobbler.isBusy()) {}
+        wobbler.setPower(0);
+    }
+    public void RaiseWobble(){
+        wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wobbler.setTargetPosition(3100);
+        wobbler.setPower(1);
+        wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (wobbler.isBusy()) {}
+        wobbler.setPower(0);
+    }
+    public void dropWobble(){
+        wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wobbler.setTargetPosition(-2000);
+        wobbler.setPower(1);
+        wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (wobbler.isBusy()) {}
+        wobbler.setPower(0);
+        openGrip();
+        try {
+            sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wobbler.setTargetPosition(1950);
+        wobbler.setPower(1);
+        wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (wobbler.isBusy()) {}
+        wobbler.setPower(0);
+    }
     // Move Left to specific distance in inches, with power (0 to 1)
     public void moveRightToPosition(double power, double distance) {
         Log.i(TAG, "Enter Function: moveRightToPosition Power : " + power + " and distance : " + distance);
@@ -828,7 +863,7 @@ public class Robot extends java.lang.Thread {
 
     }
     public void weakShot(){
-        shooter.setPower(-0.75);
+        shooter.setPower(-1);
     }
     public void wobbleUp (int time){
         wobbler.setPower(1);
@@ -850,7 +885,7 @@ public class Robot extends java.lang.Thread {
     }
 
     public void closeGrip (){
-        gripper.setPosition(0.27);
+        gripper.setPosition(0.19);
         try {
             sleep(10);
         } catch (InterruptedException e) {
@@ -858,7 +893,7 @@ public class Robot extends java.lang.Thread {
         }
     }
     public void openGrip (){
-        gripper.setPosition(0.15);
+        gripper.setPosition(0.38);
         try {
             sleep(10);
         } catch (InterruptedException e) {
@@ -1137,7 +1172,7 @@ public class Robot extends java.lang.Thread {
     public void startIntake(int time) {
 
         //Set power of all motors
-        intake.setPower(-1);
+        intake.setPower(0.8);
 
         Log.i(TAG, "Exit Function: moveBackwardForTime");
     }
