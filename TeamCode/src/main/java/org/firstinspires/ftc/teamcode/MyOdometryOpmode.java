@@ -1,27 +1,35 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Log;
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.teamcode.Robot.Drivetrain.Odometry.OdometryGlobalCoordinatePosition;
+
+//import org.firstinspires.ftc.teamcode.Robot.Drivetrain.Odometry.OdometryGlobalCoordinatePosition;
 
 /**
  * Created by Sarthak on 10/4/2019.
  */
 @TeleOp(name = "My Odometry OpMode")
+
+
 public class MyOdometryOpmode extends LinearOpMode {
+
+    org.firstinspires.ftc.teamcode.Robot Robot = new org.firstinspires.ftc.teamcode.Robot(hardwareMap, telemetry);
     //Drive motors
     DcMotor right_front, right_back, left_front, left_back;
     //Odometry Wheels
     DcMotor verticalLeft, verticalRight, horizontal;
 
-    final double COUNTS_PER_INCH = 307.699557;
+    final double COUNTS_PER_INCH = 42.7808487;
 
     //Hardware Map Names for drive motors and odometry wheels. THIS WILL CHANGE ON EACH ROBOT, YOU NEED TO UPDATE THESE VALUES ACCORDINGLY
-    String rfName = "rf", rbName = "rb", lfName = "lf", lbName = "lb";
-    String verticalLeftEncoderName = rbName, verticalRightEncoderName = lfName, horizontalEncoderName = rfName;
+    String rfName = "motor_fr", rbName = "motor_br", lfName = "motor_fl", lbName = "motor_bl";
+    String verticalLeftEncoderName = lfName, verticalRightEncoderName = rfName, horizontalEncoderName = rbName;
 
     OdometryGlobalCoordinatePosition globalPositionUpdate;
 
@@ -29,6 +37,8 @@ public class MyOdometryOpmode extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         //Initialize hardware map values. PLEASE UPDATE THESE VALUES TO MATCH YOUR CONFIGURATION
         initDriveHardwareMap(rfName, rbName, lfName, lbName, verticalLeftEncoderName, verticalRightEncoderName, horizontalEncoderName);
+
+        Log.i("FTC", "starting starting starting");
 
         telemetry.addData("Status", "Init Complete");
         telemetry.update();
@@ -41,6 +51,10 @@ public class MyOdometryOpmode extends LinearOpMode {
 
         globalPositionUpdate.reverseRightEncoder();
         globalPositionUpdate.reverseNormalEncoder();
+
+        goTOPosition(0 * COUNTS_PER_INCH, 24 * COUNTS_PER_INCH, 0.5, 0,1 * COUNTS_PER_INCH);
+        //goTOPosition(24 * COUNTS_PER_INCH, 24 * COUNTS_PER_INCH, 0.5, 0,1 * COUNTS_PER_INCH);
+        //goTOPosition(0 * COUNTS_PER_INCH, 0 * COUNTS_PER_INCH, 0.5, 0,1 * COUNTS_PER_INCH);
 
         while(opModeIsActive()){
             //Display Global (x, y, theta) coordinates
@@ -58,6 +72,50 @@ public class MyOdometryOpmode extends LinearOpMode {
 
         //Stop the thread
         globalPositionUpdate.stop();
+
+    }
+
+    private void goTOPosition(double targetXPosition, double targetYPosition, double robotPower, double desiredRobotOrientation, double allowableDistanceError) {
+        double distanceToXTarget = targetXPosition - globalPositionUpdate.returnXCoordinate();
+        double distanceToYTarget = targetYPosition - globalPositionUpdate.returnYCoordinate();
+
+        double distance = Math.hypot(distanceToXTarget, distanceToYTarget);
+        Log.i("FTC", "distance test: "+distance);
+        while (opModeIsActive() && distance > allowableDistanceError) {
+            distance = Math.hypot(distanceToXTarget, distanceToYTarget);
+            distanceToXTarget = targetXPosition - globalPositionUpdate.returnXCoordinate();
+            Log.i("FTC", "dist to x test: "+distanceToXTarget);
+
+            distanceToYTarget = targetYPosition - globalPositionUpdate.returnYCoordinate();
+            Log.i("FTC", "dist to y test: "+distanceToYTarget);
+
+            double robotMovementAngle = Math.toDegrees(Math.atan2(distanceToXTarget, distanceToYTarget));
+
+            double robot_movement_x_component = calculateX(robotMovementAngle, robotPower);
+            Log.i("FTC", "robot movement x component log: "+robot_movement_x_component);
+            double robot_movement_y_component = calculateY(robotMovementAngle, robotPower);
+            Log.i("FTC", "robot movement y component log: "+robot_movement_y_component);
+            double pivotCorrection = desiredRobotOrientation - globalPositionUpdate.returnOrientation();
+            Log.i("FTC", "desired Robot orientation log: "+desiredRobotOrientation);
+
+
+            //move robot at an ANGLE by distance inches
+            //rotate robot to change orientation
+
+            Log.i("FTC", "xxxxxxxxx");
+            Log.i("FTC",  String.valueOf(robot_movement_x_component));
+            // comments for at power = 1:
+            right_front.setPower((1)*robot_movement_y_component); // backwards - towards hub - clockwise
+            right_back.setPower((-1)*robot_movement_x_component); // backwards - towards hub - clockwise
+            left_front.setPower((1)*robot_movement_x_component); // forwards - towards column - clockwise
+            left_back.setPower((1)*robot_movement_y_component); // backwards - towards hub - counterclockwise
+
+        }
+        right_front.setPower(0); // backwards - towards hub - clockwise
+        right_back.setPower(0); // backwards - towards hub - clockwise
+        left_front.setPower(0); // forwards - towards column - clockwise
+        left_back.setPower(0); // backwards - towards hub - counterclockwise
+
 
     }
 
@@ -110,7 +168,7 @@ public class MyOdometryOpmode extends LinearOpMode {
      * @return the x vector
      */
     private double calculateX(double desiredAngle, double speed) {
-        return Math.sin(Math.toRadians(desiredAngle)) * speed;
+        return speed*Math.sin(desiredAngle+45);
     }
 
     /**
@@ -120,6 +178,7 @@ public class MyOdometryOpmode extends LinearOpMode {
      * @return the y vector
      */
     private double calculateY(double desiredAngle, double speed) {
-        return Math.cos(Math.toRadians(desiredAngle)) * speed;
+        return speed*Math.cos(desiredAngle+45);
     }
-}
+
+    }

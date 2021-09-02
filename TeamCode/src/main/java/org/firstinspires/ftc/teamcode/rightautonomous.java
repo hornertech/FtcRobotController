@@ -163,28 +163,27 @@ public class rightautonomous extends LinearOpMode {
         int angle;
         Log.i(TAG, "Enter Function: startRun Rings Detected : " + detected_rings);
         Robot r = new Robot(hardwareMap, telemetry);
-
-        r.closeGrip();
-        r.moveForwardToPosition(0.7, 56);
-        sleep(300);
-        r.slowTurn(10);
         r.startShoot();
-        sleep(800);
+        r.closeGrip();
+        r.moveForwardToPosition(0.7, 60.5);
+        sleep(300);
+        r.slowTurn(23);
+        sleep(1200);
         r.push();
-        sleep(150);
+        sleep(1000);
         r.push();
-        sleep(150);
+        sleep(1000);
         r.push();
-        sleep(150);
+        sleep(1000);
         r.endShoot();
+        int fun = 0;
 
-
-        if (detected_rings == 0){
+        if (fun == 0){
             move_distance = 30;
-            angle = 150;
+            angle = 140;
         }
-        else if(detected_rings == 1){
-            move_distance = 30;
+        else if(fun == 1){
+            move_distance = 25;
             angle = 30;
 
         }
@@ -196,14 +195,17 @@ public class rightautonomous extends LinearOpMode {
         r.slowTurn(angle);
         sleep(300);
         r.moveForwardToPosition(0.7, move_distance);
-        r.wobbleDown(500);
+        r.LowerWobble();
         r.openGrip();
-        sleep(500);
-        r.closeGrip();
-        r.wobbleUp(300);
-        sleep(500);
+        sleep(1000);
+        //r.RaiseWobble();
+        //r.closeGrip();
         r.moveBackwardToPosition(0.7, move_distance - 8);
+        r.slowTurn(-angle);
 
+        r.moveForwardToPosition(0.7, 3);
+        //r.slowTurn(90);
+        return;
     }
 
 }

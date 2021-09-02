@@ -52,7 +52,7 @@ public class Robot extends java.lang.Thread {
     private boolean DEBUG_INFO   = false;
 
     private long     movementFactor      = 1;
-    private double   turnFactor          = 3.6;
+    private double   turnFactor          = 4.4;
     private double   leftStrafeFactor    = 1.2;
     private double   rightStrafeFactor   = 1.2;
 
@@ -317,18 +317,18 @@ public class Robot extends java.lang.Thread {
         long startTime = System.currentTimeMillis();
 
         // Reset all encoders
-        Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Motor_BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //Motor_BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_BL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //Find the motor ticks needed to travel the required distance
         int ticks = DistanceToTick(distance);
 
         // Set the target position for all motors (in ticks)
-        Motor_FL.setTargetPosition(ticks);
-        Motor_FR.setTargetPosition((-1) * ticks);
-        Motor_BR.setTargetPosition((-1) * ticks);
+        //Motor_FL.setTargetPosition(ticks);
+        //Motor_FR.setTargetPosition((-1) * ticks);
+        //Motor_BR.setTargetPosition((-1) * ticks);
         Motor_BL.setTargetPosition(ticks);
 
         //Set power of all motors
@@ -338,14 +338,14 @@ public class Robot extends java.lang.Thread {
         Motor_BL.setPower(power);
 
         //Set Motors to RUN_TO_POSITION
-        Motor_FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Motor_FR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //Motor_FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //Motor_FR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //Wait for them to reach to the position
         // while ((Motor_FL.isBusy() && Motor_BL.isBusy()) || (Motor_FR.isBusy() && Motor_BR.isBusy())){
-        while (Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
+        while (Motor_BL.isBusy()) {
 
             if ((System.currentTimeMillis() - startTime) > 3000){
                 break;
@@ -379,7 +379,7 @@ public class Robot extends java.lang.Thread {
     }
     public void LowerWobble(){
         wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        wobbler.setTargetPosition(-3120);
+        wobbler.setTargetPosition(-2500);
         wobbler.setPower(1);
         wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (wobbler.isBusy()) {}
@@ -387,15 +387,32 @@ public class Robot extends java.lang.Thread {
     }
     public void RaiseWobble(){
         wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        wobbler.setTargetPosition(3100);
+        wobbler.setTargetPosition(2500);
         wobbler.setPower(1);
         wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (wobbler.isBusy()) {}
         wobbler.setPower(0);
     }
+    public void minLower(){
+        wobbler.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wobbler.setPower(-1);
+     }
+    public void minRaise(){
+        wobbler.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wobbler.setPower(1);
+    }
+    public void slowLow(){
+        wobbler.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wobbler.setPower(-0.5);
+    }
+    public void slowRaise(){
+        wobbler.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wobbler.setPower(0.5);
+    }
+    public void stopWobble(){wobbler.setPower(0);}
     public void dropWobble(){
         wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        wobbler.setTargetPosition(-2000);
+        wobbler.setTargetPosition(-750);
         wobbler.setPower(1);
         wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (wobbler.isBusy()) {}
@@ -407,7 +424,7 @@ public class Robot extends java.lang.Thread {
             e.printStackTrace();
         }
         wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        wobbler.setTargetPosition(1950);
+        wobbler.setTargetPosition(750);
         wobbler.setPower(1);
         wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (wobbler.isBusy()) {}
@@ -862,9 +879,6 @@ public class Robot extends java.lang.Thread {
         }
 
     }
-    public void weakShot(){
-        shooter.setPower(-1);
-    }
     public void wobbleUp (int time){
         wobbler.setPower(1);
         try {
@@ -886,11 +900,6 @@ public class Robot extends java.lang.Thread {
 
     public void closeGrip (){
         gripper.setPosition(0.19);
-        try {
-            sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
     public void openGrip (){
         gripper.setPosition(0.38);
@@ -1172,7 +1181,7 @@ public class Robot extends java.lang.Thread {
     public void startIntake(int time) {
 
         //Set power of all motors
-        intake.setPower(0.8);
+        intake.setPower(0.86);
 
         Log.i(TAG, "Exit Function: moveBackwardForTime");
     }
@@ -1181,8 +1190,12 @@ public class Robot extends java.lang.Thread {
     }
     public void startShoot() {
         //Set power of all motors
-        shooter.setPower(-0.9);
+        shooter.setPower(-0.90);
     }
+    public void weakShot(){
+        shooter.setPower(-0.74);
+    }
+
     public void endShoot () {
         shooter.setPower(0);
     }
