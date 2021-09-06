@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -39,7 +41,7 @@ public class OdometryCalibration extends LinearOpMode {
     final double wheel_diameter = 38/25.4;  //33mm to inches
     final double dis_per_rotation = wheel_diameter * 3.14;
     final double COUNTS_PER_INCH = ENCODER_RES/dis_per_rotation;
-
+    private String TAG = "FTC";
     ElapsedTime timer = new ElapsedTime();
 
     double horizontalTickOffset = 0;
@@ -103,20 +105,23 @@ public class OdometryCalibration extends LinearOpMode {
 
         //Record IMU and encoder values to calculate the constants for the global position algorithm
         double angle = getZAngle();
-
+        Log.i(TAG, "Encoder Counts Per Inch: " + COUNTS_PER_INCH);
+        Log.i(TAG, "Angle Reading after Turn: " + angle);
         /*
         Encoder Difference is calculated by the formula (leftEncoder - rightEncoder)
         Since the left encoder is also mapped to a drive motor, the encoder value needs to be reversed with the negative sign in front
         THIS MAY NEED TO BE CHANGED FOR EACH ROBOT
        */
+        Log.i(TAG, "Left Encoder Ticks: " + verticalLeft.getCurrentPosition() + " Right Encode Ticks:  " + verticalRight.getCurrentPosition());
         double encoderDifference = Math.abs(verticalLeft.getCurrentPosition()) + (Math.abs(verticalRight.getCurrentPosition()));
-
+        Log.i(TAG, "Encoder Absolute Sum: " + encoderDifference);
         double verticalEncoderTickOffsetPerDegree = encoderDifference/angle;
 
         double wheelBaseSeparation = (2*90*verticalEncoderTickOffsetPerDegree)/(Math.PI*COUNTS_PER_INCH);
-
+        Log.i(TAG, "Wheel Separation : " + wheelBaseSeparation);
         horizontalTickOffset = horizontal.getCurrentPosition()/Math.toRadians(getZAngle());
-
+        Log.i(TAG, "Horizontal Encoder : " + horizontal.getCurrentPosition());
+        Log.i(TAG, "Horizontal Encoder Offset: " + horizontalTickOffset);
         //Write the constants to text files
         ReadWriteFile.writeFile(wheelBaseSeparationFile, String.valueOf(wheelBaseSeparation));
         ReadWriteFile.writeFile(horizontalTickOffsetFile, String.valueOf(horizontalTickOffset));
