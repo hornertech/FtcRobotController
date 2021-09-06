@@ -35,7 +35,10 @@ public class OdometryCalibration extends LinearOpMode {
     final double PIVOT_SPEED = 0.5;
 
     //The amount of encoder ticks for each inch the robot moves. THIS WILL CHANGE FOR EACH ROBOT AND NEEDS TO BE UPDATED HERE
-    final double COUNTS_PER_INCH = 42.7808487;
+    final double ENCODER_RES = 360;
+    final double wheel_diameter = 38/25.4;  //33mm to inches
+    final double dis_per_rotation = wheel_diameter * 3.14;
+    final double COUNTS_PER_INCH = ENCODER_RES/dis_per_rotation;
 
     ElapsedTime timer = new ElapsedTime();
 
