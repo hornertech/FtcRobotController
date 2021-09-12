@@ -7,9 +7,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
+import org.firstinspires.ftc.teamcode.OdometryGlobalCoordinatePosition;
 
 //import org.firstinspires.ftc.teamcode.Robot.Drivetrain.Odometry.OdometryGlobalCoordinatePosition;
+
 
 /**
  * Created by Sarthak on 10/4/2019.
@@ -35,51 +36,9 @@ public class MyOdometryOpmode extends LinearOpMode {
 
     OdometryGlobalCoordinatePosition globalPositionUpdate;
 
-    @Override
-    public void runOpMode() throws InterruptedException {
-        //Initialize hardware map values. PLEASE UPDATE THESE VALUES TO MATCH YOUR CONFIGURATION
-        initDriveHardwareMap(rfName, rbName, lfName, lbName, verticalLeftEncoderName, verticalRightEncoderName, horizontalEncoderName);
 
-        Log.i("FTC", "starting starting starting");
-
-        telemetry.addData("Status", "Init Complete");
-        telemetry.update();
-        waitForStart();
-
-        //Create and start GlobalCoordinatePosition thread to constantly update the global coordinate positions
-        globalPositionUpdate = new OdometryGlobalCoordinatePosition(verticalLeft, verticalRight, horizontal, COUNTS_PER_INCH, 75);
-        Thread positionThread = new Thread(globalPositionUpdate);
-        positionThread.start();
-
-        globalPositionUpdate.reverseRightEncoder();
-        globalPositionUpdate.reverseNormalEncoder();
-
-        goTOPosition(0 * COUNTS_PER_INCH, 24 * COUNTS_PER_INCH, 0.5, 0,5 * COUNTS_PER_INCH);
-        Log.i("FTC", "FINAL robot position X"+ globalPositionUpdate.returnXCoordinate());
-        Log.i("FTC", "FINAL robot position Y"+ globalPositionUpdate.returnYCoordinate());
-
-        //goTOPosition(24 * COUNTS_PER_INCH, 24 * COUNTS_PER_INCH, 0.5, 0,1 * COUNTS_PER_INCH);?
-        //goTOPosition(0 * COUNTS_PER_INCH, 0 * COUNTS_PER_INCH, 0.5, 0,1 * COUNTS_PER_INCH);
-
-            sleep(3000);
-            //Display Global (x, y, theta) coordinates
-            telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
-            telemetry.addData("Y Position", globalPositionUpdate.returnYCoordinate() / COUNTS_PER_INCH);
-            telemetry.addData("Orientation (Degrees)", globalPositionUpdate.returnOrientation());
-
-            telemetry.addData("Vertical left encoder position", verticalLeft.getCurrentPosition());
-            telemetry.addData("Vertical right encoder position", verticalRight.getCurrentPosition());
-            telemetry.update();
-
-            telemetry.addData("Thread Active", positionThread.isAlive());
-            telemetry.update();
-
-        //Stop the thread
-        globalPositionUpdate.stop();
-
-    }
-
-    private void goTOPosition(double targetXPosition, double targetYPosition, double robotPower, double desiredRobotOrientation, double allowableDistanceError) {
+    public void goTOPosition(double targetXPosition, double targetYPosition, double robotPower, double desiredRobotOrientation, double allowableDistanceError) {
+        //PUBLIC or PRIVATE?
         double distanceToXTarget = targetXPosition - globalPositionUpdate.returnXCoordinate();
         double distanceToYTarget = targetYPosition - globalPositionUpdate.returnYCoordinate();
         Log.i("FTC", "robot position X"+ globalPositionUpdate.returnXCoordinate());
@@ -102,6 +61,7 @@ public class MyOdometryOpmode extends LinearOpMode {
             //Log.i("FTC", "dist to x test: "+distanceToXTarget);
 
             distanceToYTarget = targetYPosition - globalPositionUpdate.returnYCoordinate();
+            Log.i("FTC", "target Y"+ targetYPosition);
             //Log.i("FTC", "dist to y test: "+distanceToYTarget);
 
             double robotMovementAngle = Math.toDegrees(Math.atan2(distanceToXTarget, distanceToYTarget));
@@ -129,6 +89,50 @@ public class MyOdometryOpmode extends LinearOpMode {
 
     }
 
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        //Initialize hardware map values. PLEASE UPDATE THESE VALUES TO MATCH YOUR CONFIGURATION
+        initDriveHardwareMap(rfName, rbName, lfName, lbName, verticalLeftEncoderName, verticalRightEncoderName, horizontalEncoderName);
+
+        Log.i("FTC", "starting starting starting");
+
+        telemetry.addData("Status", "Init Complete");
+        telemetry.update();
+        waitForStart();
+
+        //Create and start GlobalCoordinatePosition thread to constantly update the global coordinate positions
+        globalPositionUpdate = new OdometryGlobalCoordinatePosition(verticalLeft, verticalRight, horizontal, COUNTS_PER_INCH, 75);
+        Thread positionThread = new Thread(globalPositionUpdate);
+        positionThread.start();
+
+        globalPositionUpdate.reverseRightEncoder();//make sure this works for OUR robot
+        globalPositionUpdate.reverseNormalEncoder();
+
+        goTOPosition(0 * COUNTS_PER_INCH, 10 * COUNTS_PER_INCH, 0.5, 0,5 * COUNTS_PER_INCH);
+        Log.i("FTC", "FINAL robot position X"+ globalPositionUpdate.returnXCoordinate());
+        Log.i("FTC", "FINAL robot position Y"+ globalPositionUpdate.returnYCoordinate());
+
+        //goTOPosition(24 * COUNTS_PER_INCH, 24 * COUNTS_PER_INCH, 0.5, 0,1 * COUNTS_PER_INCH);?
+        //goTOPosition(0 * COUNTS_PER_INCH, 0 * COUNTS_PER_INCH, 0.5, 0,1 * COUNTS_PER_INCH);
+
+            sleep(3000);
+            //Display Global (x, y, theta) coordinates
+            telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
+            telemetry.addData("Y Position", globalPositionUpdate.returnYCoordinate() / COUNTS_PER_INCH);
+            telemetry.addData("Orientation (Degrees)", globalPositionUpdate.returnOrientation());
+
+            telemetry.addData("Vertical left encoder position", verticalLeft.getCurrentPosition());
+            telemetry.addData("Vertical right encoder position", verticalRight.getCurrentPosition());
+            telemetry.update();
+
+            telemetry.addData("Thread Active", positionThread.isAlive());
+            telemetry.update();
+
+        //Stop the thread
+        globalPositionUpdate.stop();
+
+    }
 
     private void initDriveHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){
         right_front = hardwareMap.dcMotor.get(rfName);
@@ -179,7 +183,8 @@ public class MyOdometryOpmode extends LinearOpMode {
      * @return the x vector
      */
     private double calculateX(double desiredAngle, double speed) {
-        return speed*Math.sin(desiredAngle+45);
+        return speed*Math.sin(Math.toRadians(desiredAngle));
+        //return speed*Math.sin(desiredAngle+45);
     }
 
     /**
@@ -189,7 +194,8 @@ public class MyOdometryOpmode extends LinearOpMode {
      * @return the y vector
      */
     private double calculateY(double desiredAngle, double speed) {
-        return speed*Math.cos(desiredAngle+45);
+        return speed*Math.cos(Math.toRadians(desiredAngle));
+        //return speed*Math.cos(desiredAngle+45);
     }
 
     }
