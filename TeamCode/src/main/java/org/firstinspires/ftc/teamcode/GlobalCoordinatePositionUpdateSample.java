@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,7 +19,10 @@ public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
     DcMotor verticalRight, verticalLeft, horizontal;
 
     //The amount of encoder ticks for each inch the robot moves. This will change for each robot and needs to be changed here
-    final double COUNTS_PER_INCH = 42.7808487;
+    final double ENCODER_RES = 1440;
+    final double wheel_diameter = 38/25.4;  //33mm to inches
+    final double dis_per_rotation = wheel_diameter * 3.14;
+    final double COUNTS_PER_INCH = ENCODER_RES/dis_per_rotation;
 
     //Hardware map names for the encoder wheels. Again, these will change for each robot and need to be updated below
     String verticalLeftEncoderName = "motor_fl", verticalRightEncoderName = "motor_fr", horizontalEncoderName = "motor_br";
@@ -65,16 +70,22 @@ public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
         OdometryGlobalCoordinatePosition globalPositionUpdate = new OdometryGlobalCoordinatePosition(verticalLeft, verticalRight, horizontal, COUNTS_PER_INCH, 75);
         Thread positionThread = new Thread(globalPositionUpdate);
         positionThread.start();
-
+        Log.i("FTC", "Ticks per Inch" + COUNTS_PER_INCH);
         while(opModeIsActive()){
             //Display Global (x, y, theta) coordinates
             telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
             telemetry.addData("Y Position", globalPositionUpdate.returnYCoordinate() / COUNTS_PER_INCH);
+            telemetry.addData("horizntalal", globalPositionUpdate.normalEncoderWheelPosition / COUNTS_PER_INCH);
+            telemetry.addData("raw encoder ticks", globalPositionUpdate.returnRaw());
             telemetry.addData("Orientation (Degrees)", globalPositionUpdate.returnOrientation());
             telemetry.addData("Thread Active", positionThread.isAlive());
             telemetry.update();
-        }
 
+        }
+        Log.i("FTC", "X Position" + globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
+        Log.i("FTC", "Y Position" + globalPositionUpdate.returnYCoordinate() / COUNTS_PER_INCH);
+        Log.i("FTC", "horenizontal" + globalPositionUpdate.normalEncoderWheelPosition / COUNTS_PER_INCH);
+        Log.i("FTC", "Orientation (Degrees)" + globalPositionUpdate.returnOrientation());
         //Stop the thread
         globalPositionUpdate.stop();
     }

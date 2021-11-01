@@ -37,7 +37,7 @@ public class OdometryCalibration extends LinearOpMode {
     final double PIVOT_SPEED = 0.5;
 
     //The amount of encoder ticks for each inch the robot moves. THIS WILL CHANGE FOR EACH ROBOT AND NEEDS TO BE UPDATED HERE
-    final double ENCODER_RES = 360;
+    final double ENCODER_RES = 1440;
     final double wheel_diameter = 38/25.4;  //33mm to inches
     final double dis_per_rotation = wheel_diameter * 3.14;
     final double COUNTS_PER_INCH = ENCODER_RES/dis_per_rotation;
@@ -115,7 +115,9 @@ public class OdometryCalibration extends LinearOpMode {
         Log.i(TAG, "Left Encoder Ticks: " + verticalLeft.getCurrentPosition() + " Right Encode Ticks:  " + verticalRight.getCurrentPosition());
         double encoderDifference = Math.abs(verticalLeft.getCurrentPosition()) + (Math.abs(verticalRight.getCurrentPosition()));
         Log.i(TAG, "Encoder Absolute Sum: " + encoderDifference);
+        Log.i(TAG, "Angle: " + angle);
         double verticalEncoderTickOffsetPerDegree = encoderDifference/angle;
+        Log.i(TAG, "verticalEncoderTickOffsetPerDegree " + verticalEncoderTickOffsetPerDegree);
 
         double wheelBaseSeparation = (2*90*verticalEncoderTickOffsetPerDegree)/(Math.PI*COUNTS_PER_INCH);
         Log.i(TAG, "Wheel Separation : " + wheelBaseSeparation);
@@ -143,6 +145,8 @@ public class OdometryCalibration extends LinearOpMode {
             //Update values
             telemetry.update();
         }
+
+
     }
 
     private void initHardwareMap(String rfName, String rbName, String lfName, String lbName, String vlEncoderName, String vrEncoderName, String hEncoderName){

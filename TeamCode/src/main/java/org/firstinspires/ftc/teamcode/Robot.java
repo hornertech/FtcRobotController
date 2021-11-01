@@ -917,12 +917,6 @@ public class Robot extends java.lang.Thread {
         } catch (InterruptedException e){
             e.printStackTrace();
         }
-        pusher.setPower(0.8);
-        try{
-            sleep(200);
-        } catch (InterruptedException e){
-            e.printStackTrace();
-        }
         pusher.setPower(0);
     }
 
