@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.OdometryGlobalCoordinatePosition;
 
-//import org.firstinspires.ftc.teamcode.Robot.Drivetrain.Odometry.OdometryGlobalCoordinatePosition;
+// import org.firstinspires.ftc.teamcode.Robot.Drivevetrain.Odometry.OdometryGlobalCoordinatePosition;
 
 
 /**
@@ -26,8 +26,8 @@ public class MyOdometryOpmode extends LinearOpMode {
     //Odometry Wheels
     DcMotor verticalLeft, verticalRight, horizontal;
     final double ENCODER_RES = 360;
-    final double wheel_diameter = 38/25.4;  //33mm to inches
-    final double dis_per_rotation = wheel_diameter * 3.14;
+    final double wheel_diameter = 4.00;  //33mm to inches
+    final double dis_per_rotation = wheel_diameter * 3.1415;
     final double COUNTS_PER_INCH = ENCODER_RES/dis_per_rotation;
 
     //Hardware Map Names for drive motors and odometry wheels. THIS WILL CHANGE ON EACH ROBOT, YOU NEED TO UPDATE THESE VALUES ACCORDINGLY
@@ -38,19 +38,15 @@ public class MyOdometryOpmode extends LinearOpMode {
 
 
     public void goTOPosition(double targetXPosition, double targetYPosition, double robotPower, double desiredRobotOrientation, double allowableDistanceError) {
-        //PUBLIC or PRIVATE?
+        //PUBLIC or PRIVATE
         double distanceToXTarget = targetXPosition - globalPositionUpdate.returnXCoordinate();
         double distanceToYTarget = targetYPosition - globalPositionUpdate.returnYCoordinate();
-        Log.i("FTC", "robot position X"+ globalPositionUpdate.returnXCoordinate());
-        Log.i("FTC", "robot position Y"+ globalPositionUpdate.returnYCoordinate());
-        Log.i("FTC", "target Y:"+ targetYPosition);
-        telemetry.addData("Trash", targetXPosition);
-        telemetry.addData("Trash2", targetYPosition);
-        telemetry.update();
-        double distance = Math.hypot(distanceToXTarget, distanceToYTarget);
-        Log.i("FTC", "distance test: "+distance);
-        while (opModeIsActive() && distance>allowableDistanceError) {
 
+        double distance = Math.hypot(distanceToXTarget, distanceToYTarget);
+        while (opModeIsActive() && distance > allowableDistanceError) {
+            distance = Math.hypot(distanceToXTarget,distanceToYTarget);
+            distanceToXTarget = targetXPosition - globalPositionUpdate.returnXCoordinate();
+            distanceToYTarget = targetYPosition - globalPositionUpdate.returnYCoordinate();
             right_front.setPower((0.25)); // backwards - towards hub - clockwise
             right_back.setPower((0.25)); // backwards - towards hub - clockwise
             left_front.setPower((-0.25)); // forwards - towards column - clockwise
@@ -67,12 +63,10 @@ public class MyOdometryOpmode extends LinearOpMode {
             double robotMovementAngle = Math.toDegrees(Math.atan2(distanceToXTarget, distanceToYTarget));
 
             double robot_movement_x_component = calculateX(robotMovementAngle, robotPower);
-            //Log.i("FTC", "robot movement x component log: "+robot_movement_x_component);
-            double robot_movement_y_component = calculateY(robotMovementAngle, robotPower);
-            //Log.i("FTC", "robot movement y component log: "+robot_movement_y_component);
-            double pivotCorrection = desiredRobotOrientation - globalPositionUpdate.returnOrientation();
-            //Log.i("FTC", "desired Robot orientation log: "+desiredRobotOrientation);
 
+            double robot_movement_y_component = calculateY(robotMovementAngle, robotPower);
+
+            double pivotCorrection = desiredRobotOrientation - globalPositionUpdate.returnOrientation();
 
             //move robot at an ANGLE by distance inches
             //rotate robot to change orientation
@@ -89,9 +83,11 @@ public class MyOdometryOpmode extends LinearOpMode {
 
     }
 
-
     @Override
+
     public void runOpMode() throws InterruptedException {
+        //test for program
+        goTOPosition(0*COUNTS_PER_INCH, 24*COUNTS_PER_INCH, .5, 0, 1);
         //Initialize hardware map values. PLEASE UPDATE THESE VALUES TO MATCH YOUR CONFIGURATION
         initDriveHardwareMap(rfName, rbName, lfName, lbName, verticalLeftEncoderName, verticalRightEncoderName, horizontalEncoderName);
 

@@ -54,29 +54,13 @@ public class loadingRed extends LinearOpMode {
     private float phoneZRotate    = 0;
 
     private double location[] = {0, 0, 0, 0, 0, 0, 0};
-    // Location[0] : 0 = Target not visible, 1 = Target visible
-    // Location[1] : Lateral drift from target
-    // Location[2] : Distance from Target
-    // Location[3] : Vertical shift, not needed for our program
-    // Location[4] : Vertical Angle Shift; Not useful for our program
-    // Location[5] : Upward Angle Shift; Not useful for our program
-    // Location[6] : Horizontal Angle Shift
-    private int boardDistance = 30;
-    private int bridgeOffset = 10;
+
     private int skystonePicked = 0;
     private int skystoneLocation = 0;
-    private int stoneStrafeTime = 650;
-    private int stoneForwardTime = 175;
     private double correctionDistance = 0;
     private int secondSkyStoneLocation = -1;
     // Vuforia Code
-    /* Vuforia is a detection program used to detect the skystones by our team. We find it very useful as
-       it can tell us if a skystone is in fron of our camera, as well as the various values mentioned above.
-       These values, such as the Horizontal Angle Shift, Lateral Shift and Distance from Target allow us to
-       correct our robot to perfectly pick up the skystones as well as efficiently deliver them to the building
-       zone.
-    */
-
+  //  VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
     void detectOnce(List<VuforiaTrackable> allTrackables) {
         // check all the trackable targets to see which one (if any) is visible. -- Our only Trackable is Skystone
         Log.i(TAG, "Entering Function detectOnce");
@@ -140,31 +124,16 @@ public class loadingRed extends LinearOpMode {
         //Correct Lateral Shift
         if (location[2] > 0)
         {
-            correctionDistance = (location[2]);
-            robot.moveRightToPosition(0.5, java.lang.Math.abs(correctionDistance));
-            //robot.moveRightForTime(0.5, (int)(correctionDistance*80), false);
-
-            skystoneLocation--;
-
+            robot.moveRightToPosition(0.5, location[2]);
         }
         else if (location[2] < 0)
         {
-            correctionDistance = (java.lang.Math.abs(location[2]));
-            robot.moveLeftToPosition(0.5, java.lang.Math.abs(correctionDistance));
-            //robot.moveLeftForTime(0.5, (int)(correctionDistance*80), false);
-            if (location[2] > -3 ){
-                skystoneLocation--;
-            }
-            else if (location[2] < -12 ){
-                skystoneLocation++;
-            }
+            robot.moveLeftToPosition(0.5, location[2]);
         }
-
-        sleep(450);
         robot.fixOrientation(0);
 
         //Move Forward to Target
-        robot.moveForwardToPosition(0.75, (java.lang.Math.abs (location[1]) - 1));
+        robot.moveForwardToPosition(0.75, location[1]);
 
         location[0]  = 0;
         Log.i(TAG, "Exiting Function moveToSkyStone");
@@ -234,34 +203,10 @@ public class loadingRed extends LinearOpMode {
 
         targetsSkyStone.activate();
 
-//BEGINNING AUTONOMOUS CODE
-        /*
-        Our autonomous code for the Loading Side Blue has multiple facets
-            1) First, we begin by moving forward and raising our slides, getting into a position
-            to detect
-            2) We then begin our detection For Loop
-                - This loop goes 5 times, looking for a skystone
-                - If the skystone is found, we run moveToSkystone to get into a position to grab
-                - Next, we cross the bridge, attempt to drop the skystone on top of the foundation
-                  if it has been placed in the triangle area, then return back and get ready for the
-                  next detection
-            3) After we drop the second stone, we park on the middle line
-            4) In total, our team can score 33 points from this Loading zone program
-         */
-
-        //Robot.moveWithSlide(0.4, 650, 1, 1, 1);
-        //Robot.moveForwardToPosition(1, 12);
-        //Robot.moveForwardForTime(0.5, 650, false );
-        // Robot.moveSlides(1,700, false);
-
-
-        // Robot.dropStone();
         //Our Detection Algorithm
         for (i = skystoneLocation; i < 6; i++) {
 
             if(secondSkyStoneLocation != 5){
-                sleep(400);
-                detectOnce(allTrackables);
                 detectOnce(allTrackables);
             }
             //Detect Skystone

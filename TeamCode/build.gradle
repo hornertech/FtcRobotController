@@ -14,10 +14,18 @@
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 
+android {
+    buildFeatures {
+        mlModelBinding true
+    }
+}
+
 repositories {
     maven { url = "https://dl.bintray.com/first-tech-challenge/ftcsdk/" }
 }
 
 dependencies {
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
+    implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0-rc1'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.1.0-rc1'
 }

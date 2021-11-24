@@ -31,11 +31,12 @@ public class Robot extends java.lang.Thread {
     private DcMotorEx Motor_FR;
     private DcMotorEx Motor_BR;
     private DcMotorEx Motor_BL;
-    private DcMotorEx shooter;
-    private DcMotorEx wobbler;
-    private DcMotorEx intake;
-    private Servo gripper;
-    private CRServo pusher;
+    private DcMotorEx inslide;
+    private DcMotorEx outslide;
+    private DcMotorEx inflip;
+    private CRServo intake;
+    private CRServo outtake;
+    private CRServo carousel;
     // The IMU sensor object
     private BNO055IMU imu;
 
@@ -91,15 +92,17 @@ public class Robot extends java.lang.Thread {
         telemetry.update();
 
         //Wheels
-        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
-        wobbler = hardwareMap.get(DcMotorEx.class, "wobbler");
+        inslide = hardwareMap.get(DcMotorEx.class, "inslide");
+        outslide = hardwareMap.get(DcMotorEx.class, "outslide");
         Motor_FL = hardwareMap.get(DcMotorEx.class, "motor_fl");
         Motor_FR = hardwareMap.get(DcMotorEx.class, "motor_fr");
         Motor_BR = hardwareMap.get(DcMotorEx.class, "motor_br");
         Motor_BL = hardwareMap.get(DcMotorEx.class, "motor_bl");
-        intake = hardwareMap.get(DcMotorEx.class, "intake");
-        gripper = hardwareMap.get(Servo.class, "gripper");
-        pusher = hardwareMap.get(CRServo.class, "pusher");
+        inflip = hardwareMap.get(DcMotorEx.class, "inflip");
+        intake  = hardwareMap.get(CRServo.class, "intake");
+        outtake = hardwareMap.get(CRServo.class, "outtake");
+        carousel = hardwareMap.get(CRServo.class, "carousel");
+
        /*Motor_FR.setVelocityPIDFCoefficients(0.95, 0.095, 0, 9.5);
         Motor_FR.setPositionPIDFCoefficients(5.0);
 
@@ -377,59 +380,7 @@ public class Robot extends java.lang.Thread {
             Log.i(TAG, "Exit Function: moveForwardToPosition");
         }
     }
-    public void LowerWobble(){
-        wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        wobbler.setTargetPosition(-2500);
-        wobbler.setPower(1);
-        wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (wobbler.isBusy()) {}
-        wobbler.setPower(0);
-    }
-    public void RaiseWobble(){
-        wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        wobbler.setTargetPosition(2500);
-        wobbler.setPower(1);
-        wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (wobbler.isBusy()) {}
-        wobbler.setPower(0);
-    }
-    public void minLower(){
-        wobbler.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        wobbler.setPower(-1);
-     }
-    public void minRaise(){
-        wobbler.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        wobbler.setPower(1);
-    }
-    public void slowLow(){
-        wobbler.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        wobbler.setPower(-0.5);
-    }
-    public void slowRaise(){
-        wobbler.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        wobbler.setPower(0.5);
-    }
-    public void stopWobble(){wobbler.setPower(0);}
-    public void dropWobble(){
-        wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        wobbler.setTargetPosition(-750);
-        wobbler.setPower(1);
-        wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (wobbler.isBusy()) {}
-        wobbler.setPower(0);
-        openGrip();
-        try {
-            sleep(1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        wobbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        wobbler.setTargetPosition(750);
-        wobbler.setPower(1);
-        wobbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (wobbler.isBusy()) {}
-        wobbler.setPower(0);
-    }
+
     // Move Left to specific distance in inches, with power (0 to 1)
     public void moveRightToPosition(double power, double distance) {
         Log.i(TAG, "Enter Function: moveRightToPosition Power : " + power + " and distance : " + distance);
@@ -879,46 +830,6 @@ public class Robot extends java.lang.Thread {
         }
 
     }
-    public void wobbleUp (int time){
-        wobbler.setPower(1);
-        try {
-            sleep(time);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        wobbler.setPower(0);
-    }
-    public void wobbleDown (int time){
-        wobbler.setPower(-1);
-        try {
-            sleep(time);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        wobbler.setPower(0);
-    }
-
-    public void closeGrip (){
-        gripper.setPosition(0.19);
-    }
-    public void openGrip (){
-        gripper.setPosition(0.38);
-        try {
-            sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void push(){
-        pusher.setPower(-1);
-        try{
-            sleep(200);
-        } catch (InterruptedException e){
-            e.printStackTrace();
-        }
-        pusher.setPower(0);
-    }
 
     /* IMU based turn functions */
 
@@ -1179,21 +1090,51 @@ public class Robot extends java.lang.Thread {
 
         Log.i(TAG, "Exit Function: moveBackwardForTime");
     }
-    public void stopIntake(){
-        intake.setPower(0);
+    public void extendintake(int time){
+        inslide.setPower(0.5);
+        try {
+            sleep(time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        inslide.setPower(0);
     }
-    public void startShoot() {
-        //Set power of all motors
-        shooter.setPower(-0.90);
+    public void retractintake(int time){
+        inslide.setPower(-0.5);
+        try {
+            sleep(time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        inslide.setPower(0);
     }
-    public void weakShot(){
-        shooter.setPower(-0.74);
+    public void raiseintake(int time) {
+        inflip.setPower(0.6);
+        try {
+            sleep(time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        inflip.setPower(0);
     }
-
-    public void endShoot () {
-        shooter.setPower(0);
+    public void lowerintake(int time) {
+        inflip.setPower(-0.6);
+        try {
+            sleep(time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        inflip.setPower(0);
     }
-
+    public void carouselmove(int time) {
+        carousel.setPower(1);
+        try {
+            sleep(time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        carousel.setPower(0);
+    }
 
 
     }
