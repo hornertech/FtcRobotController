@@ -21,7 +21,7 @@ public class TeleopTest extends LinearOpMode{
 
     @Override
     public void runOpMode()  {
-        Robot robot = new Robot (hardwareMap, telemetry);
+        org.firstinspires.ftc.teamcode.Robot robot = new org.firstinspires.ftc.teamcode.Robot (hardwareMap, telemetry);
         robot.isTeleOp = true;
 
         telemetry.addData ("Status", "Initialized"); //Displays "Status: Initialized"
@@ -29,7 +29,7 @@ public class TeleopTest extends LinearOpMode{
         //Driver must press INIT and then ▶️
 
         waitForStart();
-        
+
         while (opModeIsActive()) {
             telemetry.addData("TeleOP", "New Code");
             telemetry.update();
@@ -55,6 +55,7 @@ public class TeleopTest extends LinearOpMode{
                 robot.moveF(1, 10);
             }
 
+
             if (this.gamepad1.right_stick_y < -0.5) {
                 robot.moveB(1, 10);
             }
@@ -68,9 +69,14 @@ public class TeleopTest extends LinearOpMode{
             }
 
             if (this.gamepad1.left_trigger > 0.5) {
-                robot.startIntake(10);
-                robot.startShoot();
-                robot.teleOpMotorBehavior();
+                robot.moveForwardToPosition(0.4, 24);
+                sleep(2000);
+                robot.moveBackwardToPosition(0.4, 24);
+            }
+            if (this.gamepad1.right_trigger > 0.5) {
+                robot.moveForwardForTime(0.4, 1000, false);
+                sleep(2000);
+                robot.moveBackwardForTime(0.4, 1000, false);
             }
             /*
             if (this.gamepad1.b == true) {
@@ -79,29 +85,30 @@ public class TeleopTest extends LinearOpMode{
             if (this.gamepad1.b == false){
                 robot.endShoot();
             }*/
-            if (this.gamepad2.a == true){
-                robot.openGrip();
-            }
+
             if (this.gamepad2.b == true){
-                robot.closeGrip();
+                robot.lowerintake(50);
             }
-            if (this.gamepad2.dpad_up){robot.minRaise();}
-            if (this.gamepad2.dpad_down){robot.minLower();}
-            if(this.gamepad2.dpad_down == false && this.gamepad2.dpad_up == false){robot.stopWobble();}
-            if(this.gamepad1.right_trigger > 0.5){
-                robot.weakShot();
-                robot.stopIntake();
+            if (this.gamepad2.a == true){
+                robot.raiseintake(50);
             }
-            if(this.gamepad1.dpad_left == false &&this.gamepad1.dpad_right == false && this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false){
-                robot.turnOff();
+            if (this.gamepad2.x == true){
+                robot.extend();
             }
-
-            if(this.gamepad1.dpad_left == true) {
-                robot.moveR(0.5, 10);
+            if (this.gamepad2.y == true){
+                robot.home();
             }
-
-            if(this.gamepad1.dpad_right == true) {
-                robot.moveL(0.5, 10);
+            if (this.gamepad2.dpad_up){
+                robot.startIntake(100);
+            }
+            if (this.gamepad2.dpad_down){
+                robot.carouselmove(20000);
+            }
+            if(this.gamepad2.dpad_left == true) {
+                robot.retractintake( 100);
+            }
+            if(this.gamepad2.dpad_right == true) {
+                robot.extendintake(100);
             }
 
             if(this.gamepad1.dpad_up == true) {
@@ -111,14 +118,22 @@ public class TeleopTest extends LinearOpMode{
             if(this.gamepad1.dpad_down == true) {
                 robot.moveB(0.5, 10);
             }
-            if (this.gamepad2.left_bumper == true){
-                robot.push();
+            if(this.gamepad1.a == true){
+                robot.startIntake(100);
             }
+            if (this.gamepad1.b == true){
+                robot.home();
+            }
+            if (this.gamepad1.x == true){
+                robot.extend();
+            }
+            if (this.gamepad1.y == true) {
+                robot.drop();
+            }
+
             if(this.gamepad2.right_stick_x > 0.5){
-                robot.slowRaise();
             }
             if(this.gamepad2.right_stick_x < -0.5){
-                robot.slowLow();
             }
             /****************** GamePad 2 **************/
             // Pincher
