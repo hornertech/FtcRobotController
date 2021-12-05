@@ -24,7 +24,7 @@ public class Robot extends java.lang.Thread {
 
     //private static final int TICKS_PER_ROTATION = 1440; //Tetrix motor specific
     private static final double TICKS_PER_ROTATION = 537.6; //Gobilda 1150 RMP motor specific
-    private static final double WHEEL_DIAMETER = 4; //Wheel diameter in inches
+    private static final double WHEEL_DIAMETER = 4.5; //Wheel diameter in inches
     private String TAG = "FTC";
 
     private DcMotorEx Motor_FL;
@@ -50,7 +50,7 @@ public class Robot extends java.lang.Thread {
     private double globalAngle, correction;
 
     public boolean isTeleOp = true;
-    private boolean DEBUG_DEBUG = false;
+    private boolean DEBUG_DEBUG = true;
     private boolean DEBUG_INFO = false;
 
     private long movementFactor = 1;
@@ -254,6 +254,11 @@ public class Robot extends java.lang.Thread {
         // Reset all encoders
         long startTime = System.currentTimeMillis();
 
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -272,7 +277,7 @@ public class Robot extends java.lang.Thread {
         Motor_FL.setPower(power);
         Motor_FR.setPower(power);
         Motor_BR.setPower(power);
-        Motor_BL.setPower(power);
+        Motor_BL.setPower(0.99 * power);
 
         //Set Motors to RUN_TO_POSITION
         Motor_FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -280,7 +285,8 @@ public class Robot extends java.lang.Thread {
         Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
+//        while (Motor_FL.isBusy() || Motor_BL.isBusy() || Motor_FR.isBusy() || Motor_BR.isBusy()) {
+        while (Motor_BR.isBusy()) {
             if ((System.currentTimeMillis() - startTime) > 3000) {
                 break;
             }
@@ -295,6 +301,7 @@ public class Robot extends java.lang.Thread {
             telemetry.update();
         }
 
+        Log.i(TAG, "Finished with target " + ticks + " ticks");
 
         //Reached the distance, so stop the motors
         Motor_FL.setPower(0);
@@ -317,37 +324,42 @@ public class Robot extends java.lang.Thread {
         Log.i(TAG, "Enter Function: moveForwardToPosition Power : " + power + " and distance : " + distance);
         long startTime = System.currentTimeMillis();
 
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         // Reset all encoders
-        //Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //Motor_BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_BL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //Find the motor ticks needed to travel the required distance
         int ticks = DistanceToTick(distance);
 
         // Set the target position for all motors (in ticks)
-        //Motor_FL.setTargetPosition(ticks);
-        //Motor_FR.setTargetPosition((-1) * ticks);
-        //Motor_BR.setTargetPosition((-1) * ticks);
+        Motor_FL.setTargetPosition(ticks);
+        Motor_FR.setTargetPosition((-1) * ticks);
+        Motor_BR.setTargetPosition((-1) * ticks);
         Motor_BL.setTargetPosition(ticks);
 
         //Set power of all motors
         Motor_FL.setPower(power);
         Motor_FR.setPower(power);
         Motor_BR.setPower(power);
-        Motor_BL.setPower(power);
+        Motor_BL.setPower(0.99 * power);
 
         //Set Motors to RUN_TO_POSITION
-        //Motor_FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //Motor_FR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Motor_FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Motor_FR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //Wait for them to reach to the position
         // while ((Motor_FL.isBusy() && Motor_BL.isBusy()) || (Motor_FR.isBusy() && Motor_BR.isBusy())){
-        while (Motor_BL.isBusy()) {
-
+//        while (Motor_FL.isBusy() || Motor_BL.isBusy() || Motor_FR.isBusy() || Motor_BR.isBusy()) {
+        while (Motor_BR.isBusy()) {
             if ((System.currentTimeMillis() - startTime) > 3000) {
                 break;
             }
@@ -380,9 +392,15 @@ public class Robot extends java.lang.Thread {
     }
 
     // Move Left to specific distance in inches, with power (0 to 1)
-    public void moveRightToPosition(double power, double distance) {
+    public void moveLeftToPosition(double power, double distance) {
         Log.i(TAG, "Enter Function: moveRightToPosition Power : " + power + " and distance : " + distance);
         long startTime = System.currentTimeMillis();
+
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         // Reset all encoders
         Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -402,7 +420,7 @@ public class Robot extends java.lang.Thread {
         Motor_FL.setPower(power);
         Motor_FR.setPower(power);
         Motor_BR.setPower(power);
-        Motor_BL.setPower(power);
+        Motor_BL.setPower(1.3 * power);
 
         //Set Motors to RUN_TO_POSITION
         Motor_FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -413,14 +431,9 @@ public class Robot extends java.lang.Thread {
 
         //Wait for them to reach to the position
         // while ((Motor_FR.isBusy() && Motor_BL.isBusy()) || (Motor_FL.isBusy() && Motor_BR.isBusy())){
-        while ((Motor_FL.isBusy()
-                && Motor_FR.isBusy()
-                && Motor_BL.isBusy()
-                && Motor_BR.isBusy())
-                && ((System.currentTimeMillis() - startTime) < 1000)) {
+        while (Motor_FL.isBusy()) {
 
-            if ((System.currentTimeMillis() - startTime) > 1000) {
-                Log.i(TAG, "moveRightToPosition : breaking out as time is more than 3 sec");
+            if ((System.currentTimeMillis() - startTime) > 2000) {
                 break;
             }
 
@@ -452,9 +465,15 @@ public class Robot extends java.lang.Thread {
     }
 
     // Move Right to specific distance in inches, with power (0 to 1)
-    public void moveLeftToPosition(double power, double distance) {
+    public void moveRightToPosition(double power, double distance) {
         Log.i(TAG, "Enter Function: moveLeftToPosition Power : " + power + " and distance : " + distance);
         long startTime = System.currentTimeMillis();
+
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         // Reset all encoders
         Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -474,7 +493,7 @@ public class Robot extends java.lang.Thread {
         Motor_FL.setPower(power);
         Motor_FR.setPower(power);
         Motor_BR.setPower(power);
-        Motor_BL.setPower(power);
+        Motor_BL.setPower(1.3 * power);
 
         //Set Motors to RUN_TO_POSITION
         Motor_FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -485,14 +504,9 @@ public class Robot extends java.lang.Thread {
 
         //Wait for them to reach to the position
         // while ((Motor_FL.isBusy() && Motor_BR.isBusy()) || (Motor_FR.isBusy() && Motor_BL.isBusy())){
-        while ((Motor_FL.isBusy()
-                && Motor_FR.isBusy()
-                && Motor_BL.isBusy()
-                && Motor_BR.isBusy())
-                && ((System.currentTimeMillis() - startTime) < 1000)) {
+        while (Motor_FL.isBusy()) {
 
-
-            if ((System.currentTimeMillis() - startTime) > 1000) {
+            if ((System.currentTimeMillis() - startTime) > 3000) {
                 break;
             }
 
@@ -596,7 +610,7 @@ public class Robot extends java.lang.Thread {
         Log.i(TAG, "Exit Function: moveForwardForTime");
     }
 
-    public void moveLeftForTime(double power, int time, boolean speed) {
+    public void moveRightForTime(double power, int time, boolean speed) {
         Log.i(TAG, "Enter Function: moveLeftForTime Power : " + power + " and time : " + time);
 
         Motor_FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -625,7 +639,7 @@ public class Robot extends java.lang.Thread {
         Log.i(TAG, "Exit Function: moveLeftForTime");
     }
 
-    public void moveRightForTime(double power, int time, boolean speed) {
+    public void moveLeftForTime(double power, int time, boolean speed) {
         Log.i(TAG, "Enter Function: moveRightForTime Power : " + power + " and time : " + time);
 
         Motor_FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -656,6 +670,11 @@ public class Robot extends java.lang.Thread {
     public void turnForTime(double power, int time, boolean speed, int orientation) {
         Log.i(TAG, "Enter Function: turnForTime Power : " + power + " and time : " + time + "Speed : " + speed + "orientation : " + orientation);
 
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         Motor_FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Motor_FR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Motor_BR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -666,7 +685,7 @@ public class Robot extends java.lang.Thread {
         Motor_BR.setPower(orientation * power);
         Motor_BL.setPower(orientation * power);
 
-       /* try {
+       try {
             sleep(time);
         } catch (Exception e) {
             e.printStackTrace();
@@ -675,7 +694,20 @@ public class Robot extends java.lang.Thread {
         Motor_FL.setPower(0);
         Motor_FR.setPower(0);
         Motor_BR.setPower(0);
-        Motor_BL.setPower(0);*/
+        Motor_BL.setPower(0);
+    }
+
+    public void turnWithPower(double power) {
+        Motor_FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Motor_FR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Motor_BR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Motor_BL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        Motor_FL.setPower(1.5 * power);
+        Motor_FR.setPower(power);
+        Motor_BR.setPower(1.5 * power);
+        Motor_BL.setPower(power);
+
     }
 
     public void turnOff() {
@@ -687,6 +719,10 @@ public class Robot extends java.lang.Thread {
 
 
     public void moveF(double power, long distance) {
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         Motor_FL.setPower(power);
         Motor_FR.setPower((-1) * power);
@@ -707,6 +743,11 @@ public class Robot extends java.lang.Thread {
     }
 
     public void moveB(double power, long distance) {
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         Motor_FL.setPower((-1) * power); //FL
         Motor_FR.setPower(power); //FR
         Motor_BR.setPower(power); //BR
@@ -725,12 +766,16 @@ public class Robot extends java.lang.Thread {
         if (isTeleOp == false) pause(250);*/
     }
 
-    public void moveL(double power, long distance) {
+    public void moveR(double power, long distance) {
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         Motor_FL.setPower((1) * power);
         Motor_FR.setPower((1) * power);
         Motor_BR.setPower((-1) * power);
-        Motor_BL.setPower((1) * power);
+        Motor_BL.setPower((-1.3) * power);
         /*try {
             sleep(distance * movementFactor);
         } catch (Exception e) {
@@ -745,12 +790,16 @@ public class Robot extends java.lang.Thread {
         if (isTeleOp == false) pause(250);*/
     }
 
-    public void moveR(double power, long distance) {
+    public void moveL(double power, long distance) {
+        Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         Motor_FL.setPower((-1) * (1) * power);
         Motor_FR.setPower((-1) * (1) * power);
         Motor_BR.setPower(power * (1));
-        Motor_BL.setPower(power * (1));
+        Motor_BL.setPower(power * (1.3));
 
         /*try {
             sleep(distance * movementFactor);
@@ -1187,7 +1236,7 @@ public class Robot extends java.lang.Thread {
             e.printStackTrace();
         }
         outslide.setPower(-0.02);
-        outflip.setPower(-0.45);
+        outflip.setPower(-0.5);
         try {
             sleep(500);
         } catch (Exception e) {
@@ -1276,7 +1325,7 @@ public class Robot extends java.lang.Thread {
     }
 
     public void carouselmove(int time) {
-        carousel.setPower(1);
+        carousel.setPower(-1);
         try {
             sleep(time);
         } catch (Exception e) {

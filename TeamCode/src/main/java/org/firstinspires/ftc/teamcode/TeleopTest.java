@@ -36,15 +36,10 @@ public class TeleopTest extends LinearOpMode{
 
             /********** GamePad 1 ****************/
             //Turning
-            if(this.gamepad1.left_stick_x < 0.5 && this.gamepad1.left_stick_x > -0.5){
-                robot.turnOff();
-            }
-            if (this.gamepad1.left_stick_x > 0.5) {
-                robot.turnForTime(0.8, 10, false, -1 );
-            }
-
-            if (this.gamepad1.left_stick_x < -0.5) {
-                robot.turnForTime(0.8, 10, false, 1 );
+            if ((this.gamepad1.left_stick_x != 0)
+                    && this.gamepad1.right_stick_x == 0
+                    && this.gamepad1.right_stick_y == 0) {
+                robot.turnWithPower(0.8);
             }
 
             // Moving
@@ -52,31 +47,31 @@ public class TeleopTest extends LinearOpMode{
                 robot.turnOff();
             }
             if (this.gamepad1.right_stick_y > 0.5) {
-                robot.moveF(1, 10);
+                robot.moveF(0.5, 10);
             }
 
 
             if (this.gamepad1.right_stick_y < -0.5) {
-                robot.moveB(1, 10);
+                robot.moveB(0.5, 10);
             }
 
             if (this.gamepad1.right_stick_x > 0.5) {
-                robot.moveR(1, 10);
+                robot.moveR(0.5, 10);
             }
 
             if (this.gamepad1.right_stick_x < -0.5) {
-                robot.moveL(1, 10);
+                robot.moveL(0.5, 10);
             }
 
             if (this.gamepad1.left_trigger > 0.5) {
-                robot.moveForwardToPosition(0.4, 24);
+                robot.moveLeftForTime(0.4, 1000, false);
                 sleep(2000);
-                robot.moveBackwardToPosition(0.4, 24);
+                robot.moveRightForTime(0.4, 1000, false);
             }
             if (this.gamepad1.right_trigger > 0.5) {
-                robot.moveForwardForTime(0.4, 1000, false);
+                robot.moveLeftToPosition(0.4, 24);
                 sleep(2000);
-                robot.moveBackwardForTime(0.4, 1000, false);
+                robot.moveRightToPosition(0.4, 24);
             }
             /*
             if (this.gamepad1.b == true) {

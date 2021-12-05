@@ -18,7 +18,7 @@ import java.util.List;
 public class testDetection extends LinearOpMode {
     public String TAG = "FTC";
     //---------------------------------------------------------------------------------------
-    private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
+    private static final String TFOD_MODEL_ASSET = "model_unquant.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
     int detected = 0;
@@ -56,7 +56,7 @@ public class testDetection extends LinearOpMode {
         // first.
         initVuforia();
         initTfod();
-        int numRings = 0;
+        int position = 0; // positions move from left to right (1 is left, 2 is middle, 3 is right)
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
          * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
@@ -96,10 +96,14 @@ public class testDetection extends LinearOpMode {
                         for (Recognition recognition : updatedRecognitions) {
                             String label = recognition.getLabel();
 
-                            if (label == "Quad") {
-                                numRings = 4;
-                            } else if (label == "Single") {
-                                numRings = 1;
+                            if (label == "Class 2") {
+                                position += 2;
+                            }
+                            else if (label == "Class 3") {
+                                position += 3;
+                                }
+                            else {
+                                position += 1;
                             }
 
                             telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
@@ -152,45 +156,9 @@ public class testDetection extends LinearOpMode {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
-    public void startRun(int detected_rings) {
-        Log.i(TAG, "Enter Function: startRun Rings Detected : " + detected_rings);
+    public void startRun(int detected_position) {
+        Log.i(TAG, "Enter Function: startRun Position Detected : " + detected_position);
         Robot r = new Robot(hardwareMap, telemetry);
-/*
-        r.moveF(1, 900);
-        r.moveL(1, 100);
-
-        //If # of rings = 0
-        //Shoot x3 (TBW)
-        if (detected_rings == 0) {
-            r.moveF(1, 100);
-            r.moveR(1, 200);
-            //Drop wobble
-        }
-
-        //If # of rings = 1
-        //Shoot x3
-        if (detected_rings == 1) {
-            r.moveB(1, 400);
-            //pickup rings
-            r.moveF(1, 400);
-            //shoot x1
-            r.moveF(1, 600);
-            //Drop wobble
-            r.moveB(1, 400);
-        }
-
-        //If # of rings = 4
-        //Shoot x3
-        if (detected_rings == 4) {
-            r.moveB(1, 400);
-            //pickup rings
-            r.moveF(1, 400);
-            //shoot x3
-            r.moveF(1, 600);
-            r.moveR(1, 200);
-            //Drop wobble
-            r.moveB(1, 500);
-        }*/
 
     }
 
