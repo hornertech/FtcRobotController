@@ -36,31 +36,35 @@ public class TeleopTest extends LinearOpMode{
 
             /********** GamePad 1 ****************/
             //Turning
-            if ((this.gamepad1.left_stick_x != 0)
+            if ((this.gamepad1.left_stick_x > 0.2 && this.gamepad1.left_stick_x != 0)
                     && this.gamepad1.right_stick_x == 0
                     && this.gamepad1.right_stick_y == 0) {
-                robot.turnWithPower(0.8);
+                robot.arcTurn(0.8, 100);
             }
-
+            if ((this.gamepad1.left_stick_x < -0.2 && this.gamepad1.left_stick_x != 0)
+                    && this.gamepad1.right_stick_x == 0
+                    && this.gamepad1.right_stick_y == 0) {
+                robot.arcTurn(-0.8, 100);
+            }
             // Moving
             if(this.gamepad1.right_stick_x < 0.5 && this.gamepad1.right_stick_x > -0.5 && this.gamepad1.right_stick_y < 0.5 && this.gamepad1.right_stick_y > -0.5){
                 robot.turnOff();
             }
             if (this.gamepad1.right_stick_y > 0.5) {
-                robot.moveF(0.5, 10);
+                robot.moveF(1, 10);
             }
 
 
             if (this.gamepad1.right_stick_y < -0.5) {
-                robot.moveB(0.5, 10);
+                robot.moveB(1, 10);
             }
 
             if (this.gamepad1.right_stick_x > 0.5) {
-                robot.moveR(0.5, 10);
+                robot.moveR(1, 10);
             }
 
             if (this.gamepad1.right_stick_x < -0.5) {
-                robot.moveL(0.5, 10);
+                robot.moveL(1, 10);
             }
 
             if (this.gamepad1.left_trigger > 0.5) {
@@ -73,39 +77,55 @@ public class TeleopTest extends LinearOpMode{
                 sleep(2000);
                 robot.moveRightToPosition(0.4, 24);
             }
-            /*
-            if (this.gamepad1.b == true) {
-                robot.startShoot();
-            }
-            if (this.gamepad1.b == false){
-                robot.endShoot();
-            }*/
-
-            if (this.gamepad2.b == true){
-                robot.lowerintake(50);
-            }
             if (this.gamepad2.a == true){
-                robot.raiseintake(50);
+                //robot.raiseouttake(1100);
+                robot.perfectDrop();
+            }
+            if (this.gamepad2.b == true){
+                robot.raiseouttake(550);
             }
             if (this.gamepad2.x == true){
-                robot.extend();
+                robot.lowerouttake(1100);
             }
             if (this.gamepad2.y == true){
-                robot.home();
+                robot.lowerouttake(550);
             }
-            if (this.gamepad2.dpad_up){
+            if (this.gamepad1.a){
+                robot.carouselmove(2200);
+            }
+            if (this.gamepad1.b){
+                robot.carouselmove(1000);
+            }
+            if(this.gamepad2.dpad_up == true) {
+                robot.raiseouttake( 50);
+            }
+            if(this.gamepad2.dpad_down == true) {
+                robot.lowerouttake(50);
+            }
+            if(this.gamepad2.right_stick_y < -0.2 ){
+                robot.extendintake(50);
+            }
+            if(this.gamepad2.right_stick_y > 0.2 ){
+                robot.retractintake(10);
+            }
+            if(this.gamepad2.left_stick_y < -0.2 ){
+                robot.raiseintake(50);
+            }
+            if(this.gamepad2.left_stick_y > 0.2 ){
+                robot.lowerintake(50);
+            }
+            if(this.gamepad2.left_trigger > 0.5){
                 robot.startIntake(100);
             }
-            if (this.gamepad2.dpad_down){
-                robot.carouselmove(20000);
+            if(this.gamepad2.right_trigger > 0.5){
+                robot.dropBottom();
             }
-            if(this.gamepad2.dpad_left == true) {
-                robot.retractintake( 100);
+            if(this.gamepad2.left_bumper == true){
+                robot.extendintake(1250);
             }
-            if(this.gamepad2.dpad_right == true) {
-                robot.extendintake(100);
+            if(this.gamepad2.right_bumper == true){
+                //robot.home();
             }
-
             if(this.gamepad1.dpad_up == true) {
                 robot.moveF( 0.5,10);
             }
@@ -113,17 +133,22 @@ public class TeleopTest extends LinearOpMode{
             if(this.gamepad1.dpad_down == true) {
                 robot.moveB(0.5, 10);
             }
+            if(this.gamepad2.dpad_left == true) {
+                robot.dropdown( 10);
+            }
+
+            if(this.gamepad2.dpad_right == true) {
+                robot.dropup(10);
+            }
+            if(this.gamepad1.dpad_left == true) {
+                robot.moveR( 0.3, 10);
+            }
+
+            if(this.gamepad1.dpad_right == true) {
+                robot.moveL(0.3, 10);
+            }
             if(this.gamepad1.a == true){
-                robot.startIntake(100);
-            }
-            if (this.gamepad1.b == true){
-                robot.home();
-            }
-            if (this.gamepad1.x == true){
-                robot.extend();
-            }
-            if (this.gamepad1.y == true) {
-                robot.drop();
+                robot.arcTurn(-1, 900);
             }
 
             if(this.gamepad2.right_stick_x > 0.5){

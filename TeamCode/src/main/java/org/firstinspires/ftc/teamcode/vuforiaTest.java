@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+
 
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -30,7 +32,6 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
 @Autonomous
-@Disabled
 public class vuforiaTest extends LinearOpMode {
 
     public String TAG = "FTC";
@@ -105,20 +106,20 @@ public class vuforiaTest extends LinearOpMode {
             // express the rotation of the robot in degrees.
             Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
             telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-
-            location[4] = rotation.firstAngle;
-            location[5] = rotation.secondAngle;
-            location[6] = rotation.thirdAngle;
+//
+//            location[4] = rotation.firstAngle;
+//            location[5] = rotation.secondAngle;
+//            location[6] = rotation.thirdAngle;
             Log.i(TAG, "Positions: X =" + location[1] + " Y = " + location[2] + " Z = " + location[3]);
-            Log.i(TAG, "Angles: ROLL =" + location[4] + "Pitch = " + location[5] + "Heading = " + location[6]);
-            if ((location[1] > 20 || location[1] < -20) || (location[2] > 10 || location[2] < -10) || (location[6] >30 || location[6] < -30))
-            {
-                location[0] = 0;
-                Log.i(TAG, "Exiting Function detectOnce: Detected wrong Element, returning no element detected");
-            }
-            else {
-                Log.i(TAG, "Exiting Function detectOnce: Returning element detected");
-            }
+//            Log.i(TAG, "Angles: ROLL =" + location[4] + "Pitch = " + location[5] + "Heading = " + location[6]);
+//            if ((location[1] > 20 || location[1] < -20) || (location[2] > 10 || location[2] < -10) || (location[6] >30 || location[6] < -30))
+//            {
+//                location[0] = 0;
+//                Log.i(TAG, "Exiting Function detectOnce: Detected wrong Element, returning no element detected");
+//            }
+//            else {
+//                Log.i(TAG, "Exiting Function detectOnce: Returning element detected");
+//            }
         } else {
             telemetry.addData("Visible Target", "none");
             Log.i(TAG, "No Target Visible");
@@ -132,10 +133,13 @@ public class vuforiaTest extends LinearOpMode {
         int i;
 
         //Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraDirection = CAMERA_CHOICE;
 
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
@@ -185,16 +189,16 @@ public class vuforiaTest extends LinearOpMode {
         allTrackables.addAll(targetsSkyStone);
 
         // We need to rotate the camera around its long axis to bring the correct camera forward.
-        if (CAMERA_CHOICE == BACK) {
-            phoneYRotate = -90;
-        } else {
-            phoneYRotate = 90;
-        }
+//        if (CAMERA_CHOICE == BACK) {
+//            phoneYRotate = -90;
+//        } else {
+//            phoneYRotate = 90;
+//        }
 
         // Rotate the phone vertical about the X axis if it's in portrait mode
-        if (PHONE_IS_PORTRAIT) {
-            phoneXRotate = 90;
-        }
+//        if (PHONE_IS_PORTRAIT) {
+//            phoneXRotate = 90;
+//        }
         OpenGLMatrix robotFromCamera = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, phoneYRotate, phoneZRotate, phoneXRotate));
@@ -238,3 +242,4 @@ public class vuforiaTest extends LinearOpMode {
     }
 
 }
+

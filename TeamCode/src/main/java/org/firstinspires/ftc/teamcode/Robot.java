@@ -703,13 +703,54 @@ public class Robot extends java.lang.Thread {
         Motor_BR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Motor_BL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        Motor_FL.setPower(1.5 * power);
+        Motor_FL.setPower(0.8 * power);
         Motor_FR.setPower(power);
-        Motor_BR.setPower(1.5 * power);
+        Motor_BR.setPower(0.8 * power);
         Motor_BL.setPower(power);
 
     }
+    public void arcTurn(double power, int time){
+        Motor_FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Motor_FR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Motor_BR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Motor_BL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        Motor_FL.setPower(power);
+        Motor_FR.setPower(power);
+        Motor_BR.setPower(-0.1 * power);
+        Motor_BL.setPower(-0.1*power);
+
+        try {
+            sleep(time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Motor_FL.setPower(0);
+        Motor_FR.setPower(0);
+        Motor_BR.setPower(0);
+        Motor_BL.setPower(0);
+    }
+    public void arcTurnTwo(double power, int time){
+        Motor_FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Motor_FR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Motor_BR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Motor_BL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        Motor_FL.setPower(-0.1*power);
+        Motor_FR.setPower(-0.1*power);
+        Motor_BR.setPower(power);
+        Motor_BL.setPower(power);
+
+        try {
+            sleep(time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Motor_FL.setPower(0);
+        Motor_FR.setPower(0);
+        Motor_BR.setPower(0);
+        Motor_BL.setPower(0);
+    }
     public void turnOff() {
         Motor_FL.setPower(0);
         Motor_FR.setPower(0);
@@ -1170,7 +1211,7 @@ public class Robot extends java.lang.Thread {
         Motor_BR.setPower(0);
     }
     public void extendintake(int time) {
-        inslide.setPower(-1);
+        inslide.setPower(-0.75);
         try {
             sleep(time);
         } catch (Exception e) {
@@ -1180,7 +1221,7 @@ public class Robot extends java.lang.Thread {
     }
 
     public void retractintake(int time) {
-        inslide.setPower(1);
+        inslide.setPower(0.75);
         try {
             sleep(time);
         } catch (Exception e) {
@@ -1236,7 +1277,7 @@ public class Robot extends java.lang.Thread {
             e.printStackTrace();
         }
         outslide.setPower(-0.02);
-        outflip.setPower(-0.5);
+        outflip.setPower(0.4);
         try {
             sleep(500);
         } catch (Exception e) {
@@ -1244,27 +1285,129 @@ public class Robot extends java.lang.Thread {
         }
         outflip.setPower(0);
         try {
-            sleep(200);
+            sleep(1000);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        outflip.setPower(0.45);
+        outflip.setPower(-0.4);
         try {
-            sleep(500);
+            sleep(400);
         } catch (Exception e) {
             e.printStackTrace();
         }
         outflip.setPower(0);
         outslide.setPower(1);
         try {
-            sleep(1100);
+            sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outslide.setPower(-0.02);
+    }
+    public void dropMiddle(){
+        outslide.setPower(-1);
+        try {
+            sleep(550);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outslide.setPower(-0.02);
+        outflip.setPower(0.4);
+        try {
+            sleep(500);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outflip.setPower(0);
+        try {
+            sleep(1200);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outflip.setPower(-0.4);
+        try {
+            sleep(410);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outflip.setPower(0);
+        outslide.setPower(1);
+        try {
+            sleep(550);
         } catch (Exception e) {
             e.printStackTrace();
         }
         outslide.setPower(-0.02);
 
     }
+    public void dropBottom(){
+
+        outflip.setPower(0.4);
+        try {
+            sleep(500);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outflip.setPower(0);
+        try {
+            sleep(1200);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outflip.setPower(-0.4);
+        try {
+            sleep(400);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outflip.setPower(0);
+
+    }
+    public void perfectDrop(){
+        outslide.setPower(-0.02);
+        outflip.setPower(0.4);
+        try {
+            sleep(250);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outflip.setPower(0);
+        outslide.setPower(-1);
+        try {
+            sleep(1100);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outslide.setPower(-0.02);
+        outflip.setPower(0.4);
+        try {
+            sleep(250);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outflip.setPower(0);
+        try {
+            sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outflip.setPower(-0.4);
+        try {
+            sleep(350);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outflip.setPower(0);
+        outslide.setPower(1);
+        try {
+            sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outslide.setPower(-0.02);
+    }
     public void raiseintake(int time) {
+        inflip.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         inflip.setPower(-1);
         try {
             sleep(time);
@@ -1275,6 +1418,7 @@ public class Robot extends java.lang.Thread {
     }
 
     public void lowerintake(int time) {
+        inflip.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         inflip.setPower(1);
         try {
             sleep(time);

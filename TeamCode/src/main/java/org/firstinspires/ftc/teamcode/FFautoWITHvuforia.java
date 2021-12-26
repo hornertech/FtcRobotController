@@ -30,12 +30,16 @@ import java.util.List;
 
 
 @Autonomous
-public class FreightFrenzyAuton extends LinearOpMode {
+public class FFautoWITHvuforia extends LinearOpMode {
     public String TAG = "FTC";
     //---------------------------------------------------------------------------------------
     private static final String TFOD_MODEL_ASSET = "model_unquant.tflite";
-    private static final String LABEL_FIRST_ELEMENT = "Quad";
-    private static final String LABEL_SECOND_ELEMENT = "Single";
+    //private static final String[] LABELS = {
+    private static final String[] LABELS = {
+            "Class 1",
+            "Class 2",
+            "Class 3",
+    };
     int detected = 0;
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -91,8 +95,9 @@ public class FreightFrenzyAuton extends LinearOpMode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfodParameters.minResultConfidence = 0.8f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
+
     public void runOpMode() {
         Robot Robot = new Robot(hardwareMap, telemetry);
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
@@ -116,7 +121,7 @@ public class FreightFrenzyAuton extends LinearOpMode {
             // (typically 1.78 or 16/9).
 
             // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.
-            //tfod.setZoom(1, 1);
+            tfod.setZoom(1, 1);
         }
 
         /** Wait for the game to begin */
@@ -125,40 +130,28 @@ public class FreightFrenzyAuton extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            if ((tfod != null) && (detected == 0)) {
-                // getUpdatedRecognitions() will return null if no new information is available since
-                // the last time that call was made.
-                sleep(500);
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null) {
-                    telemetry.addData("# Object Detected", updatedRecognitions.size());
-                    Log.i(TAG, "# Object Detected : " + updatedRecognitions.size());
-                    // step through the list of recognitions and display boundary info.
-                    int i = 0;
-                    for (Recognition recognition : updatedRecognitions) {
-                        String label = recognition.getLabel();
-                        Log.i(TAG, "Object detected! " + recognition.getLabel());
-                        if (label == "Class 2") {
-                            position += 2;
+            while (opModeIsActive()) {
+                Log.i(TAG, "Starting");
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    if (updatedRecognitions != null) {
+                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+                        // step through the list of recognitions and display boundary info.
+                        int i = 0;
+                        for (Recognition recognition : updatedRecognitions) {
+                            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                    recognition.getLeft(), recognition.getTop());
+                            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                    recognition.getRight(), recognition.getBottom());
+                            i++;
                         }
-                        else if (label == "Class 3") {
-                            position += 3;
-                        }
-                        else {
-                            position += 1;
-                        }
-
-                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                                recognition.getLeft(), recognition.getTop());
-                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                recognition.getRight(), recognition.getBottom());
-
+                        telemetry.update();
                     }
-                    telemetry.update();
-                    //console.log(telemetry);
-                    //startRun(numRings);
                 }
+                Log.i(TAG, "Position" + position);
             }
         }
 
@@ -183,7 +176,6 @@ public class FreightFrenzyAuton extends LinearOpMode {
         Robot.moveRightToPosition(0.5, 30);
         Robot.moveRightForTime(0.3, 1500, false);
         Robot.moveForwardToPosition(0.5, 40);
-
          */
     }
 }
