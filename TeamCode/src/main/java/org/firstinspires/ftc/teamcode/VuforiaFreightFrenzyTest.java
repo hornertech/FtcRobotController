@@ -102,9 +102,9 @@ public class VuforiaFreightFrenzyTest extends LinearOpMode
         targetsFreightFrenzy.get(3).setName("Red Alliance Wall");
 
         //use skystone target image instead
-        VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
-        VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
-        stoneTarget.setName("Stone Target");
+       // VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
+       // VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
+        //stoneTarget.setName("Stone Target");
 
         // Start tracking targets in the background
         targetsFreightFrenzy.activate();
@@ -119,6 +119,8 @@ public class VuforiaFreightFrenzyTest extends LinearOpMode
 
         boolean targetFound     = false;    // Set to true when a target is detected by Vuforia
         double  targetRange     = 0;        // Distance from camera to target in Inches
+        double  targetX         = 0;        // X Distance
+        double  targetY         = 0;        // Y Distance
         double  targetBearing   = 0;        // Robot Heading, relative to target.  Positive degrees means target is to the right.
         double  drive           = 0;        // Desired forward power (-1 to +1)
         double  turn            = 0;        // Desired turning power (-1 to +1)
@@ -142,8 +144,8 @@ public class VuforiaFreightFrenzyTest extends LinearOpMode
                         VectorF trans = targetPose.getTranslation();
 
                         // Extract the X & Y components of the offset of the target relative to the robot
-                        double targetX = trans.get(0) / MM_PER_INCH; // Image X axis
-                        double targetY = trans.get(2) / MM_PER_INCH; // Image Z axis
+                        targetX = trans.get(0) / MM_PER_INCH; // Image X axis
+                        targetY = trans.get(2) / MM_PER_INCH; // Image Z axis
 
                         // target range is based on distance from robot position to origin (right triangle).
                         targetRange = Math.hypot(targetX, targetY);
@@ -162,6 +164,8 @@ public class VuforiaFreightFrenzyTest extends LinearOpMode
                 telemetry.addData("Target", " %s", targetName);
                 telemetry.addData("Range",  "%5.1f inches", targetRange);
                 telemetry.addData("Bearing","%3.0f degrees", targetBearing);
+                telemetry.addData("X",  "%5.1f inches", targetX);
+                telemetry.addData("Y",  "%5.1f inches", targetY);
             } else {
                 telemetry.addData(">","Drive using joystick to find target\n");
             }

@@ -2,11 +2,19 @@ package org.firstinspires.ftc.teamcode;
 
 import android.util.Log;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -16,6 +24,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.Range;
+
+import java.util.Base64;
 
 public class Robot extends java.lang.Thread {
 
@@ -61,6 +72,7 @@ public class Robot extends java.lang.Thread {
     Robot(HardwareMap map, Telemetry tel) {
         hardwareMap = map;
         telemetry = tel;
+
         initDevices();
     }
 
@@ -85,6 +97,19 @@ public class Robot extends java.lang.Thread {
     double motorBRF = 32767 / (double) motorBRMaxSpeed;
     double motorBRP = 0.1 * motorBRF;
     double mototBRI = 0.1 * motorBRP;
+    boolean targetFound     = false;    // Set to true when a target is detected by Vuforia
+    double  targetRange     = 0;        // Distance from camera to target in Inches
+    double  targetX         = 0;        // X Distance
+    double  targetY         = 0;        // Y Distance
+    double  targetBearing   = 0;        // Robot Heading, relative to target.  Positive degrees means target is to the right.
+    double  drive           = 0;        // Desired forward power (-1 to +1)
+    double  turn            = 0;        // Desired turning power (-1 to +1)
+
+    private static final String VUFORIA_KEY = "AV8zEej/////AAABmVo2vNWmMUkDlkTs5x1GOThRP0cGar67mBpbcCIIz/YtoOvVynNRmJv/0f9Jhr9zYd+f6FtI0tYHqag2teC5GXiKrNM/Jl7FNyNGCvO9zVIrblYF7genK1FVH3X6/kQUrs0vnzd89M0uSAljx0mAcgMEEUiNOUHh2Fd7IOgjlnh9FiB+cJ8bu/3WeKDxnDdqx6JI5BlQ4w7YW+3X2icSRDRlvE4hhuW1VM1BTPQgds7OtHKqUn4Z5w1Wqg/dWiOHxYTww28PVeg3ae4c2l8FUtE65jr2qQdQNc+DMLDgnJ0fUi9Ww28OK/aNrQQnHU97TnUgjLgCTlV7RXpfut5mZWXbWvO6wA6GGkm3fAIQ2IPL";
+
+    VuforiaLocalizer vuforia    = null;
+    OpenGLMatrix targetPose     = null;
+    String targetName           = "";
 
 
     private void initDeviceCore() throws Exception {
@@ -141,6 +166,19 @@ public class Robot extends java.lang.Thread {
         Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+//        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+//        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+//
+//        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+//
+//        // Turn off Extended tracking.  Set this true if you want Vuforia to track beyond the target.
+//        parameters.useExtendedTracking = false;
+//
+//        // Connect to the camera we are to use.  This name must match what is set up in Robot Configuration
+//        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+//        this.vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
         BNO055IMU.Parameters parametersIMU = new BNO055IMU.Parameters();
         parametersIMU.angleUnit = BNO055IMU.AngleUnit.DEGREES;
@@ -236,6 +274,13 @@ public class Robot extends java.lang.Thread {
         return true;
     }
 
+    public void setMotorPowers(double powerFL, double powerFR, double powerBL, double powerBR) {
+        Motor_FL.setPower(powerFL);
+        Motor_FR.setPower(powerFR);
+        Motor_BL.setPower(powerBL);
+        Motor_BR.setPower(powerBR);
+    }
+
     /*****************************************************************************/
     /* Section:      Move to specific distance functions                         */
     /*                                                                           */
@@ -248,7 +293,7 @@ public class Robot extends java.lang.Thread {
     /*                                                                           */
 
     /*****************************************************************************/
-    // Move forward to specific distance in inches, with power (0 to 1)
+        // Move forward to specific distance in inches, with power (0 to 1)
     public void moveBackwardToPosition(double power, double distance) {
         Log.i(TAG, "Enter Function: moveBackwardToPosition Power : " + power + " and distance : " + distance);
         // Reset all encoders
@@ -1361,10 +1406,14 @@ public class Robot extends java.lang.Thread {
             e.printStackTrace();
         }
         outflip.setPower(0);
-
     }
     public void perfectDrop(){
+        Log.i(TAG, "Outslide initial: " + outslide.getCurrentPosition());
+        Log.i(TAG, "Outflip initial: " + outflip.getCurrentPosition());
+
+        // stops from slipping
         outslide.setPower(-0.02);
+        // flip the block about 30 degrees
         outflip.setPower(0.4);
         try {
             sleep(250);
@@ -1372,40 +1421,170 @@ public class Robot extends java.lang.Thread {
             e.printStackTrace();
         }
         outflip.setPower(0);
+        // Raise up the slide to max height
         outslide.setPower(-1);
+        Log.i(TAG, "Outslide 2: " + outslide.getCurrentPosition());
+        Log.i(TAG, "Outflip 2: " + outflip.getCurrentPosition());
         try {
             sleep(1100);
         } catch (Exception e) {
             e.printStackTrace();
         }
         outslide.setPower(-0.02);
+        // Flip completely into the shipping hub
         outflip.setPower(0.4);
+        Log.i(TAG, "Outslide 3: " + outslide.getCurrentPosition());
+        Log.i(TAG, "Outflip 3: " + outflip.getCurrentPosition());
         try {
             sleep(250);
         } catch (Exception e) {
             e.printStackTrace();
         }
         outflip.setPower(0);
+        Log.i(TAG, "Outslide 4: " + outslide.getCurrentPosition());
+        Log.i(TAG, "Outflip 4: " + outflip.getCurrentPosition());
+        // Wait one second for block to fall out
         try {
             sleep(1000);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        // Flip backwards back to initial position
         outflip.setPower(-0.4);
+        Log.i(TAG, "Outslide 5: " + outslide.getCurrentPosition());
+        Log.i(TAG, "Outflip 5: " + outflip.getCurrentPosition());
         try {
             sleep(350);
         } catch (Exception e) {
             e.printStackTrace();
         }
         outflip.setPower(0);
+        //Bring slide back down
         outslide.setPower(1);
+        Log.i(TAG, "Outslide 6: " + outslide.getCurrentPosition());
+        Log.i(TAG, "Outflip 6: " + outflip.getCurrentPosition());
         try {
             sleep(1000);
         } catch (Exception e) {
             e.printStackTrace();
         }
         outslide.setPower(-0.02);
+        Log.i(TAG, "Outslide 7: " + outslide.getCurrentPosition());
+        Log.i(TAG, "Outflip 7: " + outflip.getCurrentPosition());
     }
+
+    public void perfectDropEncoder() {
+        outslide.setPower(0);
+        outflip.setPower(0);
+
+        outslide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outflip.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        outslide.setTargetPosition(-1350);
+         outflip.setTargetPosition(-300);
+
+        outslide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        outflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        outslide.setPower(0.7);
+        outflip.setPower(0.2);
+
+        try {
+            sleep(1500);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        outslide.setTargetPosition(0);
+        outflip.setTargetPosition(0);
+
+//        while((outslide.isBusy() || outflip.isBusy())) { }
+//
+//        outslide.setPower(0);
+//        outflip.setPower(0);
+    }
+
+    public void logOuttakeEncoders() {
+        Log.i(TAG, "outslide: " + outslide.getCurrentPosition());
+        Log.i(TAG, "outflip: " + outflip.getCurrentPosition());
+    }
+
+    public void resetOuttakeEncoders() {
+        outslide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        outflip.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+//    public void vumarkDetection(VuforiaTrackables targetsFreightFrenzy, double MM_PER_INCH) {
+//        // Look for first visible target, and save its pose.
+//        targetFound = false;
+//        for (VuforiaTrackable trackable : targetsFreightFrenzy)
+//        //for(VuforiaTrackable trackable : targetsSkyStone)
+//        {
+//            if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible())
+//            {
+//                targetPose = ((VuforiaTrackableDefaultListener)trackable.getListener()).getVuforiaCameraFromTarget();
+//
+//                // if we have a target, process the "pose" to determine the position of the target relative to the robot.
+//                if (targetPose != null)
+//                {
+//                    targetFound = true;
+//                    targetName  = trackable.getName();
+//                    VectorF trans = targetPose.getTranslation();
+//
+//                    // Extract the X & Y components of the offset of the target relative to the robot
+//                    targetX = trans.get(0) / MM_PER_INCH; // Image X axis
+//                    targetY = trans.get(2) / MM_PER_INCH; // Image Z axis
+//
+//                    // target range is based on distance from robot position to origin (right triangle).
+//                    targetRange = Math.hypot(targetX, targetY);
+//
+//                    // target bearing is based on angle formed between the X axis and the target range line
+//                    targetBearing = Math.toDegrees(Math.asin(targetX / targetRange));
+//
+//                    break;  // jump out of target tracking loop if we find a target.
+//                }
+//            }
+//        }
+//
+//        // Tell the driver what we see, and what to do.
+//        if (targetFound) {
+//            telemetry.addData(">","HOLD Left-Bumper to Drive to Target\n");
+//            telemetry.addData("Target", " %s", targetName);
+//            telemetry.addData("Range",  "%5.1f inches", targetRange);
+//            telemetry.addData("Bearing","%3.0f degrees", targetBearing);
+//            telemetry.addData("X",  "%5.1f inches", targetX);
+//            telemetry.addData("Y",  "%5.1f inches", targetY);
+//        } else {
+//            telemetry.addData(">","Drive using joystick to find target\n");
+//        }
+//
+////         Drive to target Automatically if Left Bumper is being pressed, AND we have found a target.
+////        if (gamepad1.left_bumper && targetFound) {
+////
+////            // Determine heading and range error so we can use them to control the robot automatically.
+////            double  rangeError   = (targetRange - DESIRED_DISTANCE);
+////            double  headingError = targetBearing;
+////
+////            // Use the speed and turn "gains" to calculate how we want the robot to move.
+////            drive = rangeError * SPEED_GAIN;
+////            turn  = headingError * TURN_GAIN ;
+////
+////            telemetry.addData("Auto","Drive %5.2f, Turn %5.2f", drive, turn);
+////        } else {
+////
+////            // drive using manual POV Joystick mode.
+////            drive = -gamepad1.left_stick_y  / 2.0;  // Reduce drive rate to 50%.
+////            turn  =  gamepad1.right_stick_x / 4.0;  // Reduce turn rate to 25%.
+////            telemetry.addData("Manual","Drive %5.2f, Turn %5.2f", drive, turn);
+////        }
+////        telemetry.update();
+////
+////        // Calculate left and right wheel powers and send to them to the motors.
+////        double leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
+////        double rightPower   = Range.clip(drive - turn, -1.0, 1.0);
+////
+////        sleep(10);
+//    }
     public void raiseintake(int time) {
         inflip.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         inflip.setPower(-1);
