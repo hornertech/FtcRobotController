@@ -180,7 +180,7 @@ public class TeleopTest extends LinearOpMode{
                         robot.perfectDropEncoder();
                     }
                 };
-                
+
                 perfect.start();
 
             }
