@@ -1504,9 +1504,56 @@ public class Robot extends java.lang.Thread {
 //        outflip.setPower(0);
     }
 
+    public void perfectIntakeEncoder() {
+        inslide.setPower(0);
+        inflip.setPower(0);
+
+        inslide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        inflip.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        inslide.setTargetPosition(-80);
+        inslide.setPower(0.3);
+        inslide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        inslide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        try {
+            sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        inslide.setTargetPosition(-250);
+        inslide.setPower(0.3);
+        inflip.setTargetPosition(50);
+        inflip.setPower(0.3);
+
+        inslide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        inflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        try {
+            sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        inslide.setTargetPosition(0);
+        inflip.setTargetPosition(0);
+    }
+
+    public void setInflipPower(double power) {
+        inflip.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        inflip.setPower(power);
+    }
+
     public void logOuttakeEncoders() {
         Log.i(TAG, "outslide: " + outslide.getCurrentPosition());
         Log.i(TAG, "outflip: " + outflip.getCurrentPosition());
+    }
+
+    public void logIntakeEncoders() {
+        Log.i(TAG, "inslide: " + inslide.getCurrentPosition());
+        Log.i(TAG, "inflip: " + inflip.getCurrentPosition());
     }
 
     public void resetOuttakeEncoders() {
@@ -1514,77 +1561,81 @@ public class Robot extends java.lang.Thread {
         outflip.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-//    public void vumarkDetection(VuforiaTrackables targetsFreightFrenzy, double MM_PER_INCH) {
-//        // Look for first visible target, and save its pose.
-//        targetFound = false;
-//        for (VuforiaTrackable trackable : targetsFreightFrenzy)
-//        //for(VuforiaTrackable trackable : targetsSkyStone)
-//        {
-//            if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible())
-//            {
-//                targetPose = ((VuforiaTrackableDefaultListener)trackable.getListener()).getVuforiaCameraFromTarget();
-//
-//                // if we have a target, process the "pose" to determine the position of the target relative to the robot.
-//                if (targetPose != null)
-//                {
-//                    targetFound = true;
-//                    targetName  = trackable.getName();
-//                    VectorF trans = targetPose.getTranslation();
-//
-//                    // Extract the X & Y components of the offset of the target relative to the robot
-//                    targetX = trans.get(0) / MM_PER_INCH; // Image X axis
-//                    targetY = trans.get(2) / MM_PER_INCH; // Image Z axis
-//
-//                    // target range is based on distance from robot position to origin (right triangle).
-//                    targetRange = Math.hypot(targetX, targetY);
-//
-//                    // target bearing is based on angle formed between the X axis and the target range line
-//                    targetBearing = Math.toDegrees(Math.asin(targetX / targetRange));
-//
-//                    break;  // jump out of target tracking loop if we find a target.
-//                }
-//            }
-//        }
-//
-//        // Tell the driver what we see, and what to do.
-//        if (targetFound) {
-//            telemetry.addData(">","HOLD Left-Bumper to Drive to Target\n");
-//            telemetry.addData("Target", " %s", targetName);
-//            telemetry.addData("Range",  "%5.1f inches", targetRange);
-//            telemetry.addData("Bearing","%3.0f degrees", targetBearing);
-//            telemetry.addData("X",  "%5.1f inches", targetX);
-//            telemetry.addData("Y",  "%5.1f inches", targetY);
-//        } else {
-//            telemetry.addData(">","Drive using joystick to find target\n");
-//        }
+    public void resetIntakeEncoders() {
+        inslide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        inflip.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void vumarkDetection(VuforiaTrackables targetsFreightFrenzy, double MM_PER_INCH) {
+        // Look for first visible target, and save its pose.
+        targetFound = false;
+        for (VuforiaTrackable trackable : targetsFreightFrenzy)
+        {
+            if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible())
+            {
+                targetPose = ((VuforiaTrackableDefaultListener)trackable.getListener()).getVuforiaCameraFromTarget();
+
+                // if we have a target, process the "pose" to determine the position of the target relative to the robot.
+                if (targetPose != null)
+                {
+                    targetFound = true;
+                    targetName  = trackable.getName();
+                    VectorF trans = targetPose.getTranslation();
+
+                    // Extract the X & Y components of the offset of the target relative to the robot
+                    targetX = trans.get(0) / MM_PER_INCH; // Image X axis
+                    targetY = trans.get(2) / MM_PER_INCH; // Image Z axis
+
+                    // target range is based on distance from robot position to origin (right triangle).
+                    targetRange = Math.hypot(targetX, targetY);
+
+                    // target bearing is based on angle formed between the X axis and the target range line
+                    targetBearing = Math.toDegrees(Math.asin(targetX / targetRange));
+
+                    break;  // jump out of target tracking loop if we find a target.
+                }
+            }
+        }
+
+        // Tell the driver what we see, and what to do.
+        if (targetFound) {
+            telemetry.addData(">","HOLD Left-Bumper to Drive to Target\n");
+            telemetry.addData("Target", " %s", targetName);
+            telemetry.addData("Range",  "%5.1f inches", targetRange);
+            telemetry.addData("Bearing","%3.0f degrees", targetBearing);
+            telemetry.addData("X",  "%5.1f inches", targetX);
+            telemetry.addData("Y",  "%5.1f inches", targetY);
+        } else {
+            telemetry.addData(">","Drive using joystick to find target\n");
+        }
 //
 ////         Drive to target Automatically if Left Bumper is being pressed, AND we have found a target.
-////        if (gamepad1.left_bumper && targetFound) {
-////
-////            // Determine heading and range error so we can use them to control the robot automatically.
-////            double  rangeError   = (targetRange - DESIRED_DISTANCE);
-////            double  headingError = targetBearing;
-////
-////            // Use the speed and turn "gains" to calculate how we want the robot to move.
-////            drive = rangeError * SPEED_GAIN;
-////            turn  = headingError * TURN_GAIN ;
-////
-////            telemetry.addData("Auto","Drive %5.2f, Turn %5.2f", drive, turn);
-////        } else {
-////
-////            // drive using manual POV Joystick mode.
-////            drive = -gamepad1.left_stick_y  / 2.0;  // Reduce drive rate to 50%.
-////            turn  =  gamepad1.right_stick_x / 4.0;  // Reduce turn rate to 25%.
-////            telemetry.addData("Manual","Drive %5.2f, Turn %5.2f", drive, turn);
-////        }
-////        telemetry.update();
-////
-////        // Calculate left and right wheel powers and send to them to the motors.
-////        double leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
-////        double rightPower   = Range.clip(drive - turn, -1.0, 1.0);
-////
-////        sleep(10);
-//    }
+//        if (gamepad1.left_bumper && targetFound) {
+//
+//            // Determine heading and range error so we can use them to control the robot automatically.
+//            double  rangeError   = (targetRange - DESIRED_DISTANCE);
+//            double  headingError = targetBearing;
+//
+//            // Use the speed and turn "gains" to calculate how we want the robot to move.
+//            drive = rangeError * SPEED_GAIN;
+//            turn  = headingError * TURN_GAIN ;
+//
+//            telemetry.addData("Auto","Drive %5.2f, Turn %5.2f", drive, turn);
+//        } else {
+//
+//            // drive using manual POV Joystick mode.
+//            drive = -gamepad1.left_stick_y  / 2.0;  // Reduce drive rate to 50%.
+//            turn  =  gamepad1.right_stick_x / 4.0;  // Reduce turn rate to 25%.
+//            telemetry.addData("Manual","Drive %5.2f, Turn %5.2f", drive, turn);
+//        }
+//        telemetry.update();
+//
+//        // Calculate left and right wheel powers and send to them to the motors.
+//        double leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
+//        double rightPower   = Range.clip(drive - turn, -1.0, 1.0);
+//
+//        sleep(10);
+    }
     public void raiseintake(int time) {
         inflip.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         inflip.setPower(-1);

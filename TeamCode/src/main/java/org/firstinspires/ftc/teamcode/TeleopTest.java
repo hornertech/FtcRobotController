@@ -103,12 +103,12 @@ public class TeleopTest extends LinearOpMode{
 
             // Log outtake encoder values
             if (this.gamepad1.x) {
-                robot.logOuttakeEncoders();
+                robot.logIntakeEncoders();
             }
 
             // Reset outtake encoder values
             if (this.gamepad1.y) {
-                robot.resetOuttakeEncoders();
+                robot.resetIntakeEncoders();
             }
 
             //Turning
@@ -175,18 +175,24 @@ public class TeleopTest extends LinearOpMode{
             }
             if (this.gamepad2.a == true){
                 //robot.raiseouttake(1100);
-                Thread perfect = new Thread() {
+                Thread perfectOuttake = new Thread() {
                     public void run() {
                         robot.perfectDropEncoder();
                     }
                 };
 
-                perfect.start();
+                perfectOuttake.start();
 
             }
-            if (this.gamepad2.b == true){
-                robot.raiseouttake(550);
-            }
+//            if (this.gamepad2.b == true){
+//                Thread perfectIntake = new Thread() {
+//                    public void run() {
+//                        robot.perfectIntakeEncoder();
+//                    }
+//                };
+//
+//                perfectIntake.start();
+//            }
             if (this.gamepad2.x == true){
                 robot.lowerouttake(1100);
             }
@@ -201,11 +207,17 @@ public class TeleopTest extends LinearOpMode{
                 robot.carouselmove(1000);
             }
             if(this.gamepad2.dpad_up == true) {
-                robot.raiseouttake( 50);
+                robot.setInflipPower(0.3);
             }
             if(this.gamepad2.dpad_down == true) {
-                robot.lowerouttake(50);
+                robot.setInflipPower(-0.3);
             }
+
+
+            if(this.gamepad2.left_bumper) {
+                robot.setInflipPower(0);
+            }
+
             if(this.gamepad2.right_stick_y < -0.2 ){
                 robot.extendintake(50);
             }
@@ -238,7 +250,7 @@ public class TeleopTest extends LinearOpMode{
                 robot.moveB(0.5, 10);
             }
             if(this.gamepad2.dpad_left == true) {
-                robot.dropdown( 10);
+                robot.setInflipPower(0);
             }
 
             if(this.gamepad2.dpad_right == true) {
