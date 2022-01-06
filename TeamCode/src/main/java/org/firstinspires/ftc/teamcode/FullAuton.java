@@ -8,7 +8,7 @@ public class FullAuton extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot Robot = new Robot(hardwareMap, telemetry);
         waitForStart();
-        int DETECT = 1;
+        int DETECT = -1;
         Robot.moveBackwardToPosition(0.5, 46);
         Robot.arcTurn(-0.5,1250);
         Robot.moveForwardToPosition(0.3, 13);
@@ -23,7 +23,7 @@ public class FullAuton extends LinearOpMode {
         }
         else{
             Robot.moveForwardToPosition(0.3, 6);
-            Robot.drop();
+            Robot.perfectDropEncoder();
             Robot.moveBackwardToPosition(0.3, 6);
         }
         Robot.arcTurn(-0.5,1400);
@@ -37,7 +37,7 @@ public class FullAuton extends LinearOpMode {
             Robot.moveBackwardForTime(0.1, 1000, false);
         }
         else{
-            Robot.moveBackwardToPosition(0.4, 23);
+            Robot.moveBackwardToPosition(0.4, 22);
             Robot.moveBackwardForTime(0.1, 300, false);
         }
 

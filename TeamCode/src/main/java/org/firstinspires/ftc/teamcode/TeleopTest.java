@@ -184,24 +184,31 @@ public class TeleopTest extends LinearOpMode{
                 perfectOuttake.start();
 
             }
-//            if (this.gamepad2.b == true){
-//                Thread perfectIntake = new Thread() {
-//                    public void run() {
-//                        robot.perfectIntakeEncoder();
-//                    }
-//                };
-//
-//                perfectIntake.start();
-//            }
+            if (this.gamepad2.b == true){
+                robot.perfectIntakeOut();
+            }
             if (this.gamepad2.x == true){
-                robot.lowerouttake(1100);
+                robot.perfectIntakeIn();
             }
             if (this.gamepad2.y == true){
-                robot.lowerouttake(550);
+                robot.moveRightToPositionWithFeedback(0.7, 48);
+                //robot.moveRightToPosition(0.7, 48);
+                //robot.moveLeftToPositionWithFeedback(0.7, 48);
+                //robot.moveLeftToPosition(0.7, 48);
             }
             if (this.gamepad1.a){
-//                robot.vumarkDetection(targetsFreightFrenzy, MM_PER_INCH);
-                robot.carouselmove(1500);
+                //robot.vumarkDetection(targetsFreightFrenzy, MM_PER_INCH);
+//                robot.rotateLeft(70, 0.7);
+                robot.arcTurn(-0.7, 900);
+                try {
+                    sleep(500);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                robot.arcTurnTwo(0.7, 700);
+                robot.moveForwardToPosition(0.7, 6);
+                robot.moveLeftToPosition(0.7, 35);
+                //robot.carouselmove(1500);
             }
             if (this.gamepad1.b){
                 robot.carouselmove(1000);
@@ -212,7 +219,6 @@ public class TeleopTest extends LinearOpMode{
             if(this.gamepad2.dpad_down == true) {
                 robot.setInflipPower(-0.3);
             }
-
 
             if(this.gamepad2.left_bumper) {
                 robot.setInflipPower(0);
@@ -236,9 +242,7 @@ public class TeleopTest extends LinearOpMode{
             if(this.gamepad2.right_trigger > 0.5){
                 robot.dropBottom();
             }
-            if(this.gamepad2.left_bumper == true){
-                robot.extendintake(1250);
-            }
+
             if(this.gamepad2.right_bumper == true){
                 //robot.home();
             }

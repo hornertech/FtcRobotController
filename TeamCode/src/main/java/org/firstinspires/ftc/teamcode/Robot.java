@@ -509,6 +509,131 @@ public class Robot extends java.lang.Thread {
         }
     }
 
+    public void moveLeftToPositionWithFeedback(double power, double distance) {
+        Log.i(TAG, "Enter Function: moveLeftToPosition Power : " + power + " and distance : " + distance);
+        long startTime = System.currentTimeMillis();
+        int i = 0;
+        int totalTicks = 0;
+        double flPower = power;
+        double frPower = power;
+        double brPower = power;
+        double blPower = power;
+
+        // Reset all encoders
+        Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_BL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        //Find the motor ticks needed to travel the required distance
+        int ticks = DistanceToTick(distance);
+        ticks = (int) (ticks * rightStrafeFactor);
+        // Set the target position for all motors (in ticks)
+        Motor_FL.setTargetPosition(ticks);
+        Motor_FR.setTargetPosition(ticks);
+        Motor_BR.setTargetPosition((-1) * ticks);
+        Motor_BL.setTargetPosition((-1) * ticks);
+
+        //Set power of all motors
+        Motor_FL.setPower(flPower);
+        Motor_FR.setPower(frPower);
+        Motor_BR.setPower(brPower);
+        Motor_BL.setPower(blPower);
+
+        //Set Motors to RUN_TO_POSITION
+        Motor_FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Motor_FR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+        //Wait for them to reach to the position
+        // while ((Motor_FL.isBusy() && Motor_BR.isBusy()) || (Motor_FR.isBusy() && Motor_BL.isBusy())){
+        while ((Motor_FL.isBusy()
+                && Motor_FR.isBusy()
+                && Motor_BL.isBusy()
+                && Motor_BR.isBusy())) {
+
+            i++;
+
+            if ((i%5) == 0 ){
+                totalTicks = Math.abs(Motor_FL.getCurrentPosition()) +
+                        Math.abs(Motor_FR.getCurrentPosition())+
+                        Math.abs(Motor_BR.getCurrentPosition()) +
+                        Math.abs(Motor_BL.getCurrentPosition());
+
+                if (Math.abs(Motor_FL.getCurrentPosition()) > (totalTicks/4)){
+                    Motor_FL.setPower(flPower * 0.9);
+                }
+                else if (Math.abs(Motor_FL.getCurrentPosition()) < (totalTicks/4)){
+                    flPower = flPower * 1.1;
+                    if (flPower > 1)
+                        flPower = 1;
+                    Motor_FL.setPower(flPower);
+                }
+
+                if (Math.abs(Motor_FR.getCurrentPosition()) > (totalTicks/4)){
+                    Motor_FR.setPower(frPower * 0.9);
+                }
+                else if (Math.abs(Motor_FR.getCurrentPosition()) < (totalTicks/4)){
+                    frPower = frPower * 1.1;
+                    if (frPower > 1)
+                        frPower = 1;
+                    Motor_FR.setPower(frPower);
+                }
+
+                if (Math.abs(Motor_BR.getCurrentPosition()) > (totalTicks/4)){
+                    Motor_BR.setPower(brPower * 0.9);
+                }
+                else if (Math.abs(Motor_BR.getCurrentPosition()) < (totalTicks/4)){
+                    brPower = brPower * 1.1;
+                    if (brPower > 1)
+                        brPower = 1;
+                    Motor_FR.setPower(brPower);
+                }
+
+                if (Math.abs(Motor_BL.getCurrentPosition()) > (totalTicks/4)){
+                    Motor_BL.setPower(blPower * 0.9);
+                }
+                else if (Math.abs(Motor_BL.getCurrentPosition()) < (totalTicks/4)){
+                    blPower = blPower * 1.1;
+                    if (blPower > 1)
+                        blPower = 1;
+                    Motor_FR.setPower(blPower);
+                }
+            }
+
+            if ((System.currentTimeMillis() - startTime) > 1000){
+                break;
+            }
+
+            if (DEBUG_DEBUG) {
+                Log.i(TAG, "flspeed : " + flPower);
+                Log.i(TAG, "frspeed : " + frPower);
+                Log.i(TAG, "brspeed : " + brPower);
+                Log.i(TAG, "blspeed : " + blPower);
+            }
+            //Waiting for Robot to travel the distance
+            telemetry.addData("Left", "Moving");
+            telemetry.update();
+        }
+
+        //Reached the distance, so stop the motors
+        Motor_FL.setPower(0);
+        Motor_FR.setPower(0);
+        Motor_BR.setPower(0);
+        Motor_BL.setPower(0);
+
+        if (DEBUG_INFO) {
+            Log.i(TAG, "TICKS needed : " + ticks);
+            Log.i(TAG, "Actual Ticks Motor0 : " + Motor_FL.getCurrentPosition());
+            Log.i(TAG, "Actual Ticks Motor1 : " + Motor_FR.getCurrentPosition());
+            Log.i(TAG, "Actual Ticks Motor2 : " + Motor_BR.getCurrentPosition());
+            Log.i(TAG, "Actual Ticks Motor3 : " + Motor_BL.getCurrentPosition());
+            Log.i(TAG, "Exit Function: moveLeftToPosition");
+        }
+    }
+
     // Move Right to specific distance in inches, with power (0 to 1)
     public void moveRightToPosition(double power, double distance) {
         Log.i(TAG, "Enter Function: moveLeftToPosition Power : " + power + " and distance : " + distance);
@@ -561,6 +686,144 @@ public class Robot extends java.lang.Thread {
                 Log.i(TAG, "Actual Ticks Motor2 : " + Motor_BR.getCurrentPosition());
                 Log.i(TAG, "Actual Ticks Motor3 : " + Motor_BL.getCurrentPosition());
             }
+            //Waiting for Robot to travel the distance
+            telemetry.addData("Left", "Moving");
+            telemetry.update();
+        }
+
+        //Reached the distance, so stop the motors
+        Motor_FL.setPower(0);
+        Motor_FR.setPower(0);
+        Motor_BR.setPower(0);
+        Motor_BL.setPower(0);
+
+        if (DEBUG_INFO) {
+            Log.i(TAG, "TICKS needed : " + ticks);
+            Log.i(TAG, "Actual Ticks Motor0 : " + Motor_FL.getCurrentPosition());
+            Log.i(TAG, "Actual Ticks Motor1 : " + Motor_FR.getCurrentPosition());
+            Log.i(TAG, "Actual Ticks Motor2 : " + Motor_BR.getCurrentPosition());
+            Log.i(TAG, "Actual Ticks Motor3 : " + Motor_BL.getCurrentPosition());
+            Log.i(TAG, "Exit Function: moveLeftToPosition");
+        }
+    }
+
+    public void moveRightToPositionWithFeedback(double power, double distance) {
+        Log.i(TAG, "Enter Function: moveLeftToPosition Power : " + power + " and distance : " + distance);
+        long startTime = System.currentTimeMillis();
+        int i = 0;
+        int totalTicks = 0;
+        double flPower = power * 0.7;
+        double frPower = power;
+        double brPower = power * 1.15;
+        double blPower = power;
+
+        // Reset all encoders
+        Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_BL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        //Find the motor ticks needed to travel the required distance
+        int ticks = DistanceToTick(distance);
+        ticks = (int) (ticks * rightStrafeFactor);
+        // Set the target position for all motors (in ticks)
+        Motor_FL.setTargetPosition((-1) * ticks);
+        Motor_FR.setTargetPosition((-1) * ticks);
+        Motor_BR.setTargetPosition(ticks);
+        Motor_BL.setTargetPosition(ticks);
+
+        //Set power of all motors
+        Motor_FL.setPower(flPower);
+        Motor_FR.setPower(frPower);
+        Motor_BR.setPower(brPower);
+        Motor_BL.setPower(blPower);
+
+        //Set Motors to RUN_TO_POSITION
+        Motor_FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Motor_FR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        double UPGRADE = 1.01;
+        double DOWNGRADE = 0.995;
+        double VARIATION_UP = 1.1;
+        double VARIATION_DOWN = 0.9;
+        //Wait for them to reach to the position
+        // while ((Motor_FL.isBusy() && Motor_BR.isBusy()) || (Motor_FR.isBusy() && Motor_BL.isBusy())){
+        while ((Motor_FL.isBusy()
+                && Motor_FR.isBusy()
+                && Motor_BL.isBusy()
+                && Motor_BR.isBusy())) {
+
+            i++;
+
+            if ((i%1) == 0 && i > 5){
+                totalTicks = -1*Motor_FL.getCurrentPosition() +
+                        -1*Motor_FR.getCurrentPosition() +
+                       Motor_BR.getCurrentPosition() +
+                        Motor_BL.getCurrentPosition();
+
+                if (Math.abs(Motor_FL.getCurrentPosition()) > (totalTicks/4) * VARIATION_UP){
+                    flPower = flPower * DOWNGRADE;
+                    Motor_FL.setPower(flPower);
+                }
+                else if (Math.abs(Motor_FL.getCurrentPosition()) < (totalTicks/4) * VARIATION_DOWN){
+                    flPower = flPower * UPGRADE;
+                    if (flPower > 1)
+                        flPower = 1;
+                    Motor_FL.setPower(flPower);
+                }
+
+                if (Math.abs(Motor_FR.getCurrentPosition()) > (totalTicks/4) * VARIATION_UP){
+                    frPower = frPower * DOWNGRADE;
+                    Motor_FR.setPower(frPower);
+                }
+                else if (Math.abs(Motor_FR.getCurrentPosition()) < (totalTicks/4) * VARIATION_DOWN){
+                    frPower = frPower * UPGRADE;
+                    if (frPower > 1)
+                        frPower = 1;
+                    Motor_FR.setPower(frPower);
+                }
+
+                if (Math.abs(Motor_BR.getCurrentPosition()) > (totalTicks/4) * VARIATION_UP){
+                    brPower = brPower * DOWNGRADE;
+                    Motor_BR.setPower(brPower);
+                }
+                else if (Math.abs(Motor_BR.getCurrentPosition()) < (totalTicks/4) * VARIATION_DOWN){
+                    brPower = brPower * UPGRADE;
+                    if (brPower > 1)
+                        brPower = 1;
+                    Motor_FR.setPower(brPower);
+                }
+
+                if (Math.abs(Motor_BL.getCurrentPosition()) > (totalTicks/4) * VARIATION_UP){
+                    blPower = blPower * DOWNGRADE;
+                    Motor_BL.setPower(blPower);
+                }
+                else if (Math.abs(Motor_BL.getCurrentPosition()) < (totalTicks/4) * VARIATION_DOWN){
+                    blPower = blPower * UPGRADE;
+                    if (blPower > 1)
+                        blPower = 1;
+                    Motor_FR.setPower(blPower);
+                }
+                if (DEBUG_DEBUG) {
+
+                    Log.i(TAG, "flspeed : " + flPower + ", ticks: " + Motor_FL.getCurrentPosition());
+                    Log.i(TAG, "frspeed : " + frPower + ", ticks: " + Motor_FR.getCurrentPosition());
+                    Log.i(TAG, "brspeed : " + brPower + ", ticks: " + Motor_BR.getCurrentPosition());
+                    Log.i(TAG, "blspeed : " + blPower + ", ticks: " + Motor_BL.getCurrentPosition());
+                    totalTicks = -1*Motor_FL.getCurrentPosition() +
+                            -1*Motor_FR.getCurrentPosition() +
+                            Motor_BR.getCurrentPosition() +
+                            Motor_BL.getCurrentPosition();
+                    Log.i(TAG, "i : " + i + ", average ticks: " + totalTicks/4 + "\n \n");
+                }
+            }
+
+            if ((System.currentTimeMillis() - startTime) > 2500){
+                break;
+            }
+
             //Waiting for Robot to travel the distance
             telemetry.addData("Left", "Moving");
             telemetry.update();
@@ -1350,62 +1613,49 @@ public class Robot extends java.lang.Thread {
         outslide.setPower(-0.02);
     }
     public void dropMiddle(){
-        outslide.setPower(-1);
-        try {
-            sleep(550);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        outslide.setPower(-0.02);
-        outflip.setPower(0.4);
-        try {
-            sleep(500);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        outslide.setPower(0);
         outflip.setPower(0);
+
+        outslide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outflip.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        outslide.setTargetPosition(-675);
+        outflip.setTargetPosition(-300);
+
+        outslide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        outflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        outslide.setPower(0.7);
+        outflip.setPower(0.1);
+
         try {
-            sleep(1200);
+            sleep(1500);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        outflip.setPower(-0.4);
-        try {
-            sleep(410);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        outflip.setPower(0);
-        outslide.setPower(1);
-        try {
-            sleep(550);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        outslide.setPower(-0.02);
+
+        outslide.setTargetPosition(0);
+        outflip.setTargetPosition(0);
 
     }
     public void dropBottom(){
+        outflip.setPower(0);
 
-        outflip.setPower(0.4);
+        outflip.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        outflip.setTargetPosition(-300);
+
+        outflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        outflip.setPower(0.2);
+
         try {
-            sleep(500);
+            sleep(1500);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        outflip.setPower(0);
-        try {
-            sleep(1200);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        outflip.setPower(-0.4);
-        try {
-            sleep(400);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        outflip.setPower(0);
+
+        outflip.setTargetPosition(0);
     }
     public void perfectDrop(){
         Log.i(TAG, "Outslide initial: " + outslide.getCurrentPosition());
@@ -1481,7 +1731,7 @@ public class Robot extends java.lang.Thread {
         outflip.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         outslide.setTargetPosition(-1350);
-         outflip.setTargetPosition(-300);
+        outflip.setTargetPosition(-300);
 
         outslide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         outflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -1504,43 +1754,56 @@ public class Robot extends java.lang.Thread {
 //        outflip.setPower(0);
     }
 
-    public void perfectIntakeEncoder() {
+    public void perfectIntakeOut() {
+
+        inslide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        inflip.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         inslide.setPower(0);
         inflip.setPower(0);
 
         inslide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         inflip.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        inslide.setTargetPosition(-80);
-        inslide.setPower(0.3);
-        inslide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        inslide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        try {
-            sleep(1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        inslide.setTargetPosition(-250);
-        inslide.setPower(0.3);
-        inflip.setTargetPosition(50);
-        inflip.setPower(0.3);
+        inslide.setTargetPosition(-1600);
+        inflip.setTargetPosition(3500);
 
         inslide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         inflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        try {
-            sleep(1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        inflip.setPower(1);
+        inslide.setPower(0.6);
 
-        inslide.setTargetPosition(0);
-        inflip.setTargetPosition(0);
+        //inslide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        //inslide.setTargetPosition(0);
+        //inflip.setTargetPosition(0);
     }
+    public void perfectIntakeIn() {
 
+        inslide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        inflip.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        inslide.setPower(0);
+        inflip.setPower(0);
+
+        inslide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        inflip.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        inslide.setTargetPosition(1600);
+        inflip.setTargetPosition(-3500);
+
+        inslide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        inflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        inflip.setPower(1);
+        inslide.setPower(0.4);
+
+        //inslide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        //inslide.setTargetPosition(0);
+        //inflip.setTargetPosition(0);
+    }
     public void setInflipPower(double power) {
         inflip.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         inflip.setPower(power);
